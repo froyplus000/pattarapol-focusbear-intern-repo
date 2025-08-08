@@ -1,7 +1,5 @@
 # Working Schedule Plan
 
-### Working Day, Time & Location
-
 | Day                     | Time               | Break              | Location             |
 | ----------------------- | ------------------ | ------------------ | -------------------- |
 | Wednesday & Thurday     | 10:00 AM - 5:00 PM | 12:00 PM - 1:00 PM | Work From Home       |
