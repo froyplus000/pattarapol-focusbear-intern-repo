@@ -43,7 +43,7 @@ As a Backend Developer Intern, I contribute to the Agile process by implementing
 
 As a Backend Developer Intern, I design, implement, and maintain backend features and APIs that support the product’s core functionality. My work ensures that the system runs efficiently, securely, and can handle the required data and traffic. I support the Agile process by delivering backend capabilities in small, testable increments and collaborating closely with other roles to ensure smooth integration.
 
-**One role I frequently collaborate with:** **QA**
+### **One role I frequently collaborate with:** **QA**
 
 - **Current teamwork:** I provide QA with clear API documentation, example requests/responses, and guidance on how to test backend features. I address bugs quickly and verify fixes through retesting.
 - **How to improve teamwork:** Involve QA earlier during feature development by sharing API changes before implementation is complete, and actively participate in test case discussions to anticipate edge cases.
