@@ -7,9 +7,9 @@
 - **Agile** is an iterative, flexible approach to project management focused on delivering value in small, frequent increments.
 - **Traditional project management** (e.g., Waterfall) follows a linear, sequential process with a fixed plan from start to finish.
 - **Key differences**:
-   - Agile adapts to change quickly, while traditional methods often resist changes once the plan is set.
-   - Agile delivers working outputs early and often, while traditional methods deliver the final product at the end.
-   - Agile involves ongoing collaboration, while traditional methods often separate planning and execution phases.
+  - Agile adapts to change quickly, while traditional methods often resist changes once the plan is set.
+  - Agile delivers working outputs early and often, while traditional methods deliver the final product at the end.
+  - Agile involves ongoing collaboration, while traditional methods often separate planning and execution phases.
 
 ### What are the core values and principles of Agile?
 
@@ -31,15 +31,15 @@
 ### What are the differences between Scrum and Kanban, and when is each used?
 
 - **Scrum**:
-   - Works in fixed-length sprints (e.g., 2 weeks)
-   - Roles are clearly defined (Product Owner, Scrum Master, Development Team)
-   - Uses ceremonies like daily stand-ups, sprint planning, sprint reviews
-   - Best for teams delivering features in predictable cycles
+  - Works in fixed-length sprints (e.g., 2 weeks)
+  - Roles are clearly defined (Product Owner, Scrum Master, Development Team)
+  - Uses ceremonies like daily stand-ups, sprint planning, sprint reviews
+  - Best for teams delivering features in predictable cycles
 - **Kanban**:
-   - Continuous flow of work — no fixed-length sprints
-   - Focuses on visualizing tasks on a board and limiting work in progress (WIP)
-   - Flexible and adaptable — tasks are pulled as capacity allows
-   - Best for teams with ongoing, incoming tasks that vary in size or priority
+  - Continuous flow of work — no fixed-length sprints
+  - Focuses on visualizing tasks on a board and limiting work in progress (WIP)
+  - Flexible and adaptable — tasks are pulled as capacity allows
+  - Best for teams with ongoing, incoming tasks that vary in size or priority
 
 ### Why does Focus Bear lean towards Kanban instead of Scrum?
 
@@ -76,5 +76,14 @@
 
 ### One Agile principle most useful for my work:
 
-> *“Welcome changing requirements, even late in development.”* This principle helps me stay flexible and open to improving the product based on real feedback, rather than being locked into a plan that may no longer be the best option.
+> _“Welcome changing requirements, even late in development.”_ This principle helps me stay flexible and open to improving the product based on real feedback, rather than being locked into a plan that may no longer be the best option.
 
+### My experiences on Scrum or Kanban
+
+- I have very little experience with Scrum, I used it once in one of university group project in the past. Where we were introduced with Agile, tools like Confluence and Jira.
+- I never use Kanban before but I think I saw similar User Interface on Trello.
+
+### How would I use Agile to help manage my work in the future?
+
+- I like Kanban board concept, I think it help me see clearer what task I have to do. I would use this in my future personal project where time constraint won't be an issue.
+- I can see that many company uses Scrum for software development, so there is a great chance that I will be using Scrum for my job as a software developer.
