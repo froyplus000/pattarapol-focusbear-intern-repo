@@ -46,3 +46,8 @@ When browsing an open‑source project’s history (e.g., React or Node.js), not
 
 - **Subject:** modified content
 - **Body:** file content had been modified
+
+### B) Overly detailed commit (too much “how”)
+
+- **Subject:** docs: added overly detailed commit example 3.B
+- **Body:** Content had been added to section 3.B, starting at line 50. This is an example for overly detailed commit. The section contain Heading with two dot point of Subject and Body with its content.
