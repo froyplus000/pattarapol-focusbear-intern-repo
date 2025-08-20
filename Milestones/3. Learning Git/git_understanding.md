@@ -37,3 +37,12 @@ When browsing an open‑source project’s history (e.g., React or Node.js), not
 - Multiple unrelated changes in one commit
 
 ---
+
+## 3) Three Example Commits (you will create in your repo)
+
+> Feel free to copy these exact messages when you commit.
+
+### A) Vague commit (bad on purpose)
+
+- **Subject:** modified content
+- **Body:** file content had been modified
