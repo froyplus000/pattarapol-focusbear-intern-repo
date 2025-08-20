@@ -60,3 +60,28 @@ When browsing an open‑source project’s history (e.g., React or Node.js), not
   This finalise all example for this file. <br>
   - All example commit are done. <br>
     Refs #60
+
+---
+
+## 4) Why Good Commit Messages Matter (Reflections)
+
+### What makes a good commit message?
+
+- **Clarity**: A concise subject line in imperative mood summarizing the change.
+- **Context**: A short body explaining the _why_ and any trade‑offs or impacts.
+- **Traceability**: References to issues/PRs and breaking changes when relevant.
+- **Scope**: One logical change per commit → easier reviews and rollbacks.
+
+### How does a clear commit message help team collaboration?
+
+- Reviewers understand intent quickly → **faster reviews**
+- Future devs (including you) can reconstruct decisions → **better maintainability**
+- Easier **blame/annotate** and selective cherry‑picks or rollbacks
+- Cleaner **release notes** and changelogs (especially with Conventional Commits)
+
+### How can poor commit messages cause issues later?
+
+- Ambiguity hides the _why_ → harder debugging and knowledge loss
+- Time wasted reading code diffs to infer meaning
+- Risky releases: unclear if a commit is a **fix**, **feature**, or **breaking**
+- Hard to automate **changelogs** or link work to issues
