@@ -48,3 +48,6 @@ As a Backend Developer Intern, I design, implement, and maintain backend feature
 - **Current teamwork:** I provide QA with clear API documentation, example requests/responses, and guidance on how to test backend features. I address bugs quickly and verify fixes through retesting.
 - **How to improve teamwork:** Involve QA earlier during feature development by sharing API changes before implementation is complete, and actively participate in test case discussions to anticipate edge cases.
 
+### My Experience with Front End Developer
+
+I never work with QA but I worked with frontend developer on Propertylens project where it's a group of three university project. I worked as backend developer, develop Restful APIs endpoiont for frontend to use. There are a lot communication happend during the development, such as discussing API endpoints that would make frontend work easier to understand and implement. We communicated and updated each other with frontend and backend progress, see if there are any blocker one could help another during the development. API document are available for frontend developer through PostMan API and Confluence, further question were discussed on discord and team meeting.
