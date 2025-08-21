@@ -127,4 +127,4 @@ This confirmed the difference between staging (temporary prep area) and committi
 
 ---
 
-This content was added from feat/learn-branching branch for learning purpose of issue #56 - Branching & Team Collaboration
+just modify some content to have more commit in this branch and will pick only cherrypick commit to main
