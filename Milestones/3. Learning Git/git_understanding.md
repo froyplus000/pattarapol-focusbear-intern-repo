@@ -180,3 +180,35 @@ Pushing straight to `main` is risky because:
 - Cherry-picking felt very precise, but I was surprised how quickly conflicts can arise if branches have drifted.
 - `git log --graph --oneline --all` gave me a much clearer visualization of branches than I expected.
 - `git blame` initially seemed harsh, but I realized it’s really a tool for understanding context and collaboration rather than finger-pointing.
+
+---
+
+# Debugging with `git bisect`
+
+## 1) What `git bisect` does
+
+`git bisect` performs a **binary search** on your commit history to find the **first commit** that introduced a bug. You mark one revision as **good** (bug not present) and one as **bad** (bug present), and Git automatically checks out midway commits until it narrows down the exact culprit.
+
+---
+
+## 2) When to use it (real world)
+
+- A regression appeared “somewhere” in the last N commits and you don’t know where.
+- Logs/diffs are too noisy or too large to eyeball.
+- You have (or can write) a **repeatable test** that returns pass/fail.
+
+---
+
+## 3) Why it beats manual review
+
+- **O(log N)** steps vs reading every commit (O(N)).
+- Works great with an automated test command (zero guesswork).
+- Reduces human bias (“I’m sure that commit can’t be it…”).
+
+## 4) Tested on CLI
+
+- See commit log : `git log --oneline`
+- Start : `git bisect start`
+- try marking the current one as Bad : `git bisect bad`
+- try marking previous commit as Good : `git bisect good <commit hash>`
+- reset : `git bisect reset`
