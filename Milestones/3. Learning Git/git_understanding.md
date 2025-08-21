@@ -126,3 +126,5 @@ Git separates these steps to give developers **flexibility and control**:
 This confirmed the difference between staging (temporary prep area) and committing (permanent history).
 
 ---
+
+This content was added from feat/learn-branching branch for learning purpose of issue #56 - Branching & Team Collaboration
