@@ -213,7 +213,6 @@ Pushing straight to `main` is risky because:
 - try marking previous commit as Good : `git bisect good <commit hash>`
 - reset : `git bisect reset`
 
-
 ---
 
 # Creating & Reviewing Pull Requests (PRs)
@@ -246,4 +245,3 @@ A **Pull Request** proposes merging changes from one branch into another (usuall
 - CI status (checks, coverage) heavily influences approval.
 
 - Clear justification in the PR body speeds up review and reduces back-and-forth. (Compare what you observed on the React PR list.)
-
