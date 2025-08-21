@@ -157,3 +157,26 @@ Pushing straight to `main` is risky because:
 - **Protection**: Because it happens in a PR, conflicts are caught before `main` changes.
 
 ---
+
+## Reflection on Advanced Git Commands
+
+### What does each command do?
+
+- **`git checkout main -- <file>`**: Restores a file to its version on `main`, discarding local edits for that file only. Tested when on a different branch, edit content in existing file and run this command to bring main version of the file to the current branch.
+- **`git cherry-pick <commit>`**: Applies a specific commit from another branch onto the current branch without merging the entire branch. Tested by creates a new file on different branch and commit, modified content in other existed file and commit. Then using GitHub Desktop to Cherrypick the commit where new file is created to Main.
+- **`git log`**: Shows commit history with details like authors, dates, messages, and diffs. Tested with terminal, this show me lots of information on time, commit hash, who commit. Interesting in command like `git log --oneline --decorate --graph --all` show graph as well.
+- **`git blame <file>`**: Annotates each line of a file with the commit and author that last changed it. Tested in terminal to see more detail of who modify line in a file.
+
+### When would you use them in a real project?
+
+- **Checkout (restore)**: To undo local mistakes or bring in a stable version of a file from `main` during debugging.
+- **Cherry-pick**: To apply hotfixes, backport specific fixes, or pull in a teammate’s commit without taking unrelated work.
+- **Log**: To review project history, generate release notes, or investigate when a bug was introduced.
+- **Blame**: To find the author of a specific change and understand the reasoning before modifying code.
+
+### What surprised me while testing?
+
+- I didn’t expect `git checkout main -- <file>` to also stage the restored file automatically.
+- Cherry-picking felt very precise, but I was surprised how quickly conflicts can arise if branches have drifted.
+- `git log --graph --oneline --all` gave me a much clearer visualization of branches than I expected.
+- `git blame` initially seemed harsh, but I realized it’s really a tool for understanding context and collaboration rather than finger-pointing.
