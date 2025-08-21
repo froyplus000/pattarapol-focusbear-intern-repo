@@ -85,3 +85,44 @@ When browsing an open‑source project’s history (e.g., React or Node.js), not
 - Time wasted reading code diffs to infer meaning
 - Risky releases: unclear if a commit is a **fix**, **feature**, or **breaking**
 - Hard to automate **changelogs** or link work to issues
+
+# Git Concepts: Staging vs. Committing
+
+## 1. Difference Between Staging and Committing
+
+- **Staging (`git add`)**:  
+  Staging is the step where you prepare specific changes to be included in your next commit. Think of it like a "shopping cart" — you pick which files/changes you want to include before finalizing them.
+- **Committing (`git commit`)**:  
+  Committing takes everything that’s staged and records it permanently in the Git history. Each commit has a unique ID (hash) and usually includes a commit message that describes the changes.
+
+---
+
+## 2. Why Git Separates Staging and Committing
+
+Git separates these steps to give developers **flexibility and control**:
+
+- You can stage only part of your changes (e.g., a single function or line) while leaving others unstaged.
+- It allows you to organize your commits into meaningful chunks instead of dumping everything at once.
+- It helps create a cleaner commit history that is easier to review and understand.
+
+---
+
+## 3. When You Would Stage Without Committing
+
+- When you want to **group related changes** together before committing.
+- When you’re **still working** but want to prepare certain files in advance.
+- When you need to **commit only some changes** from a file but not the entire file. (e.g., `git add -p` lets you stage line-by-line).
+
+---
+
+## 4. Experiment Results
+
+1. Modified a file.
+2. Ran `git add <file>` → File moved to staging.
+3. Checked `git status` → File showed as staged, ready to commit.
+4. Ran `git reset HEAD <file>` → File removed from staging, changes still in working directory.
+5. Ran `git commit -m "Update file"` → Changes saved to repository history.
+
+This confirmed the difference between staging (temporary prep area) and committing (permanent history).
+
+---
