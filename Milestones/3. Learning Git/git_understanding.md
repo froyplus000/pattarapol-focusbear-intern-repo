@@ -212,5 +212,4 @@ Pushing straight to `main` is risky because:
 - try marking the current one as Bad : `git bisect bad`
 - try marking previous commit as Good : `git bisect good <commit hash>`
 - reset : `git bisect reset`
-
-This is message to Pull Request to main for learning purpose
+  This is to test pull request that connect with issue
