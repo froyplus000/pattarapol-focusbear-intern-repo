@@ -126,3 +126,34 @@ Git separates these steps to give developers **flexibility and control**:
 This confirmed the difference between staging (temporary prep area) and committing (permanent history).
 
 ---
+
+# Branching & Team Collaboration
+
+## 1) Why not push directly to `main`?
+
+Pushing straight to `main` is risky because:
+
+- **Breaks production**: A bad change can immediately affect everyone (and CI/CD).
+- **No review**: Skips code review, linters, tests, and quality gates.
+- **History pollution**: Mixed, unreviewed commits make debugging and rollback harder.
+- **Coordination pain**: Teammates can be forced to rebase/fix conflicts on a moving `main`.
+
+---
+
+## 2) How branches help with reviewing code
+
+- **Isolated work**: Each feature/bugfix happens on its own branch—safe to experiment.
+- **Pull Requests (PRs)**: A branch becomes a PR where teammates review, comment, and run checks.
+- **Atomic history**: Squash/merge keeps `main` tidy, with descriptive messages.
+- **Automations**: CI runs tests and security scans on the branch before merge.
+
+---
+
+## 3) If two people edit the same file on different branches
+
+- **Parallel progress**: Both branches can move forward independently.
+- **On merge**: Git auto-merges when possible; if not, you get a **merge conflict** on the overlapping lines.
+- **Conflict resolution**: A human chooses the correct final content, then commits the resolution.
+- **Protection**: Because it happens in a PR, conflicts are caught before `main` changes.
+
+---
