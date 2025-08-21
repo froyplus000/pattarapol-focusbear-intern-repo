@@ -213,4 +213,34 @@ Pushing straight to `main` is risky because:
 - try marking previous commit as Good : `git bisect good <commit hash>`
 - reset : `git bisect reset`
 
-This is message to Pull Request to main for learning purpose
+---
+
+# Creating & Reviewing Pull Requests (PRs)
+
+## What is a PR & why use it?
+
+A **Pull Request** proposes merging changes from one branch into another (usually into `main`). It lets teammates review diffs, discuss, run CI, and only then integrate the work—keeping the default branch stable.
+
+---
+
+## Why are PRs important in a team workflow?
+
+- Quality gate: enables code review, CI, and policy checks before merge.
+
+- Knowledge sharing: discussions document context/decisions for future readers.
+
+- Stable main: unfinished work stays on branches until reviewed/approved.
+
+## What makes a well-structured PR?
+
+- Small, focused scope with clear title & rationale.
+
+- Good description: what/why, test plan, screenshots/logs if relevant.
+
+## What I learned from reviewing an open-source PR
+
+- Reviewers ask for specific changes and request tests/docs.
+
+- CI status (checks, coverage) heavily influences approval.
+
+- Clear justification in the PR body speeds up review and reduces back-and-forth. (Compare what you observed on the React PR list.)
