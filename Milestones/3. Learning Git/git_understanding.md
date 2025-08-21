@@ -236,6 +236,7 @@ A **Pull Request** proposes merging changes from one branch into another (usuall
 - Small, focused scope with clear title & rationale.
 
 - Good description: what/why, test plan, screenshots/logs if relevant.
+- Linked issue (e.g., Fixes #123) and passing CI.
 
 ## What I learned from reviewing an open-source PR
 
