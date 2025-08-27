@@ -144,3 +144,91 @@ Yes. After `npm run format` and addressing lints, the code became visually unifo
 
 **Result.**
 After fixes, `npm run lint` and `npm run format:check` pass. The repo now enforces Airbnb style consistently, and the toolchain (ESLint + Prettier) is ready to run locally and in CI to keep the codebase clean.
+
+---
+
+# Naming Variables & Functions
+
+## What makes a good name?
+
+- **Communicates intent:** the _why/what_, not the _how_.
+- **Domain language:** use terms the team/business already uses.
+- **Specific & unambiguous:** prefer `retryLimit` over `n`; `unitPrice` over `p`.
+- **Consistent casing:** `camelCase` for vars/functions, `PascalCase` for classes/types.
+- **Good boolean prefixes:** `is/has/can/should` (e.g., `isAdmin`, `hasAccess`).
+- **Include units when relevant:** `timeoutMs`, `distanceKm`.
+- **Avoid noise/abbrev:** skip `mgr`, `svc`, `tmp1`. Spell it out unless it’s universally known (`id`, `url`).
+
+## Tiny messy → clean examples
+
+### Example 1 (JS): subtotal with optional discount
+
+**Before (unclear):**
+
+```js
+function p(a, b, c) {
+  const r = a * b;
+  const d = c ? r * 0.9 : r;
+  return d;
+}
+```
+
+**After (clear):**
+
+```js
+function calculateSubtotal(unitPrice, quantity, hasDiscount) {
+  const subtotal = unitPrice * quantity;
+  return hasDiscount ? subtotal * 0.9 : subtotal;
+}
+```
+
+Why better: intent is obvious from names; booleans read naturally; fewer mental hops.
+
+---
+
+### Example 2 (JS): date formatting
+
+**Before:**
+
+```js
+function fmt(d) {
+  const t = new Date(d);
+  return `${t.getFullYear()}-${t.getMonth() + 1}-${t.getDate()}`;
+}
+```
+
+**After:**
+
+```js
+function formatDateISO(dateInput) {
+  const date = new Date(dateInput);
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+```
+
+Why better: function name says _what_; parameter clarifies _what kind_ of value; parts are named.
+
+---
+
+## What can go wrong with poor names?
+
+- **Misuse & bugs:** devs pass the wrong values or flip booleans (`flag`, `x`, `y`).
+- **Slower reviews & onboarding:** readers must reverse-engineer meaning.
+- **Inconsistent APIs:** similar things end up with different names (`count` vs `total`).
+- **Hidden units:** timeouts in seconds vs milliseconds cause subtle defects.
+
+## Reflection (what I did & learned)
+
+**What makes a good variable/function name?**
+Clear intent, domain terms, consistent casing, boolean prefixes (`is/has/can/should`), and units in names when relevant. Names should let a reader guess behavior without opening the function.
+
+**What issues can arise from poorly named variables?**
+Ambiguity leads to wrong usage and defects (e.g., mixing units, negated booleans like `notReady`), slower reviews, and duplicated logic when teammates don’t realize two things are the same concept.
+
+**How did refactoring improve readability?**
+Renaming `p(a,b,c)` to `calculateSubtotal(unitPrice, quantity, hasDiscount)` made the purpose self-evident and reduced comments needed. In the date example, `formatDateISO(dateInput)` and sub-parts (`yyyy`, `mm`, `dd`) made intent and output format obvious at a glance.
+
+---
