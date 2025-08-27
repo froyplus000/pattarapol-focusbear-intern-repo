@@ -99,3 +99,48 @@ This tiny example already illustrates all the clean code principles:
 - **Efficiency:** no unnecessary overhead.
 
 ---
+
+## Code Formatting & Style — Reflection
+
+**Setup summary.**
+I initialized a small JS project in a folder called "eslint-prettier-test-config" and added ESLint + Prettier with Airbnb base rules:
+
+- `eslint`
+- `prettier`
+- `eslint-config-airbnb-base`
+- `eslint-plugin-import`
+- `eslint-config-prettier`
+- `eslint-plugin-prettier`
+
+Config files:
+
+- `.eslintrc.json` extends `["airbnb-base", "plugin:prettier/recommended"]`;
+- `.prettierrc.json` sets single quotes, semicolons, trailing commas.
+- `package.json` I added scripts for `lint`, `lint:fix`, `format`, and `format:check`.
+
+**Why formatting is important.**
+
+- Consistent style reduces cognitive load and review time; PRs focus on logic instead of nits.
+- Automated formatting eliminates bikeshedding and keeps diffs clean (smaller, more readable).
+- A checked-in config makes behavior identical across teammates, editors, and CI.
+- Lint rules catch real issues early (unused code, dangerous equality, import mistakes).
+
+**What the linter detected (first run).**
+
+- `no-unused-vars`: a demo function (`bad`) was declared but never used.
+- `no-console`: warned about `console.log` left in the code.
+- `eqeqeq`: flagged `==` and required `===`.
+- (When testing style) `prefer-const`: suggested `const` where a `let` wasn’t reassigned.
+- Prettier formatting changes: quotes → single, add semicolons, normalize spacing/indent.
+
+**Fixes and what auto-fixed vs manual.**
+
+- Auto-fixed by tools: quote style, semicolons, spacing/indentation, `prefer-const`.
+- Manual changes: remove/use unused variables; change `==` to `===`; either remove `console.log`, suppress it for a single line, or relax `no-console` per project policy.
+- Note: “Missing script” errors were resolved by adding the `scripts` in `package.json`.
+
+**Did formatting make the code easier to read?**
+Yes. After `npm run format` and addressing lints, the code became visually uniform and easier to scan. Consistent indentation and quote/semicolon rules made functions quicker to understand. Linting also surfaced a small logic risk (`==` vs `===`) and a dead symbol (unused function), which would have added noise in future PRs.
+
+**Result.**
+After fixes, `npm run lint` and `npm run format:check` pass. The repo now enforces Airbnb style consistently, and the toolchain (ESLint + Prettier) is ready to run locally and in CI to keep the codebase clean.
