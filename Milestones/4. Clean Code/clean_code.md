@@ -222,13 +222,119 @@ Why better: function name says _what_; parameter clarifies _what kind_ of value;
 
 ## Reflection (what I did & learned)
 
-**What makes a good variable/function name?**
+**What makes a good variable/function name?** <br>
 Clear intent, domain terms, consistent casing, boolean prefixes (`is/has/can/should`), and units in names when relevant. Names should let a reader guess behavior without opening the function.
 
-**What issues can arise from poorly named variables?**
+**What issues can arise from poorly named variables?** <br>
 Ambiguity leads to wrong usage and defects (e.g., mixing units, negated booleans like `notReady`), slower reviews, and duplicated logic when teammates don’t realize two things are the same concept.
 
-**How did refactoring improve readability?**
+**How did refactoring improve readability?** <br>
 Renaming `p(a,b,c)` to `calculateSubtotal(unitPrice, quantity, hasDiscount)` made the purpose self-evident and reduced comments needed. In the date example, `formatDateISO(dateInput)` and sub-parts (`yyyy`, `mm`, `dd`) made intent and output format obvious at a glance.
+
+---
+
+# Writing Small, Focused Functions (RPG: Gather Wood)
+
+## Best practices (short)
+
+- One job per function with a clear name.
+- Keep the “story” at the top (orchestrator) and details in tiny helpers.
+- Use early returns to avoid deep nesting.
+
+---
+
+## Before — one function doing everything
+
+```js
+function gather(player) {
+  console.log("Start gather");
+  if (!player) {
+    console.log("no player");
+    return 0;
+  }
+  if (player.stamina < 5) {
+    console.log("too tired");
+    return 0;
+  }
+
+  let amount = 1;
+  if (player.tool === "axe") {
+    console.log("using axe");
+    amount = 3;
+  } else {
+    console.log("no axe");
+  }
+
+  console.log("chopping...");
+  player.stamina -= 5;
+  player.wood = (player.wood || 0) + amount;
+
+  console.log(
+    `gathered ${amount}, wood=${player.wood}, stamina=${player.stamina}`
+  );
+  return amount;
+}
+```
+
+**Problems:** mixed checks, rule calculation, and state changes all in one place. Harder to test or reuse parts.
+
+---
+
+## After — tiny, single-purpose helpers
+
+```js
+const STAMINA_COST = 5;
+
+function canGather(player) {
+  const ok = !!player && player.stamina >= STAMINA_COST;
+  console.log(ok ? "can gather" : " cannot gather");
+  return ok;
+}
+
+function woodYield(tool) {
+  const amount = tool === "axe" ? 3 : 1;
+  console.log(tool === "axe" ? "axe yield=3" : "hands yield=1");
+  return amount;
+}
+
+function gatherWood(player) {
+  console.log("Start gather");
+  if (!canGather(player)) return 0;
+
+  const amount = woodYield(player.tool);
+  console.log(" chopping...");
+  player.stamina -= STAMINA_COST;
+  player.wood = (player.wood || 0) + amount;
+
+  console.log(
+    `gathered ${amount}, wood=${player.wood}, stamina=${player.stamina}`
+  );
+  return amount;
+}
+
+// tiny demo
+const p = { stamina: 10, tool: "axe", wood: 0 };
+gatherWood(p); // logs the steps
+```
+
+**Why better:** the orchestrator (`gatherWood`) reads like a 3-step story: check → compute → apply. Each helper has one clear job and a tiny body.
+
+---
+
+## Reflection
+
+**Why is breaking down functions beneficial?** <br>
+Small, single-purpose functions make the code easier to read, test, and change. If the wood yield rule changes later (e.g., different tools), I only touch `woodYield` without risking the stamina or validation logic.
+
+**What issues can arise from large functions?** <br>
+Mixed concerns make it hard to see the intent, increase bugs when changing one rule, and slow reviews because readers must mentally separate checks, calculations, and state updates.
+
+**How did refactoring improve the structure?** <br>
+The “before” mixed validation, yield rules, and state mutation. The “after” has:
+
+- `canGather(player)` for the guard,
+- `woodYield(tool)` for the simple rule, and
+- `gatherWood(player)` orchestrating the sequence.
+  The console logs now narrate the flow, and each piece is small enough to reason about instantly.
 
 ---
