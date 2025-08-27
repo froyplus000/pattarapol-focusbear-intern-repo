@@ -338,3 +338,107 @@ The “before” mixed validation, yield rules, and state mutation. The “after
   The console logs now narrate the flow, and each piece is small enough to reason about instantly.
 
 ---
+
+# Avoiding Code Duplication (DRY) — RPG Example
+
+## DRY in one line
+
+**Don’t Repeat Yourself (DRY)** means putting shared logic in one place so a change only needs to be made once.
+
+---
+
+## Before — duplicated checks & updates
+
+```js
+function gatherWood(player) {
+  console.log(" gather wood");
+  if (!player || player.stamina < 5) {
+    console.log(" tired");
+    return 0;
+  }
+  const amount = player.tool === "axe" ? 3 : 1;
+  player.stamina -= 5;
+  player.wood = (player.wood || 0) + amount;
+  console.log(`+${amount} wood, stamina=${player.stamina}`);
+  return amount;
+}
+
+function mineOre(player) {
+  console.log(" mine ore");
+  if (!player || player.stamina < 5) {
+    console.log(" tired");
+    return 0;
+  }
+  const amount = player.tool === "pickaxe" ? 2 : 1;
+  player.stamina -= 5;
+  player.ore = (player.ore || 0) + amount;
+  console.log(`+${amount} ore, stamina=${player.stamina}`);
+  return amount;
+}
+```
+
+**What’s duplicated?**
+
+- The **stamina check** (`!player || player.stamina < 5`)
+- The **stamina deduction** (`player.stamina -= 5`)
+- The **inventory update** pattern
+- The **log messaging** shape
+
+---
+
+## After — one tiny helper for the shared steps
+
+```js
+const STAMINA_COST = 5;
+
+function canAct(player) {
+  const ok = !!player && player.stamina >= STAMINA_COST;
+  if (!ok) console.log(" tired");
+  return ok;
+}
+
+function finishAction(player, resourceKey, amount) {
+  player.stamina -= STAMINA_COST;
+  player[resourceKey] = (player[resourceKey] || 0) + amount;
+  console.log(`+${amount} ${resourceKey}, stamina=${player.stamina}`);
+  return amount;
+}
+
+function gatherWood(player) {
+  console.log(" gather wood");
+  if (!canAct(player)) return 0;
+  const amount = player.tool === "axe" ? 3 : 1;
+  return finishAction(player, "wood", amount);
+}
+
+function mineOre(player) {
+  console.log(" mine ore");
+  if (!canAct(player)) return 0;
+  const amount = player.tool === "pickaxe" ? 2 : 1;
+  return finishAction(player, "ore", amount);
+}
+
+// quick demo
+const p = { stamina: 10, tool: "axe", wood: 0, ore: 0 };
+gatherWood(p); // runs shared checks + updates via helpers
+mineOre(p);
+```
+
+**Why this is better**
+
+- The stamina policy and update live in **one place** (`canAct`, `finishAction`).
+- Adding a new action (e.g., `fish()`) reuses the helpers—no copy-paste.
+
+---
+
+## Reflection
+
+**What were the issues with duplicated code?**
+
+- The stamina rules and inventory update logic were copy-pasted in multiple functions. Any tweak to stamina cost or the logging format would require edits in several places, risking inconsistent behavior and missed fixes.
+
+**How did refactoring improve maintainability?**
+
+- I extracted the shared logic into `canAct` (guard) and `finishAction` (apply effects). Now stamina policy and the update pattern are centralized, so changes happen once. New actions can reuse the helpers, keeping functions short and consistent.
+
+---
