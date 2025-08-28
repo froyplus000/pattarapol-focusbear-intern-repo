@@ -539,3 +539,112 @@ It tried to be generic (action executor, hooks, config merging, multiple payload
 I removed generic scaffolding, used a single `heal(player, amount, { crit })` API, added a guard clause, and unified the logic. The function now reads top-down, is easy to test, and changes (e.g., new crit multiplier) are localized to one place.
 
 ---
+
+# Commenting & Documentation
+
+## Best practices
+
+- Prefer explaining **why** over restating **what**. Names and small functions should make the “what” obvious.
+- Document non-obvious **business rules**, **trade-offs**, **assumptions**, **invariants**, and **edge cases**.
+- Use **constants** and **clear names** to eliminate comments that just decode magic numbers.
+- For public APIs, add a brief **JSDoc**: what it does, parameters, return, errors, side effects.
+- Keep comments **close** to the code they explain and keep them **up to date**.
+- Link out to specs, tickets, or papers when the reasoning lives elsewhere.
+- Avoid noise: comments should earn their keep; delete outdated comments promptly.
+
+---
+
+## Poorly commented code (before)
+
+Problems: comments repeat the code, hide magic numbers, and don’t explain intent or constraints.
+
+```js
+// gather wood function
+function gw(p, t) {
+  // check stamina
+  if (p.stamina < 5) {
+    // not enough stamina
+    return 0;
+  }
+  // add 3 if axe else 1
+  const a = p.tool === "axe" ? 3 : 1;
+  // night penalty
+  const amt = t === "night" ? a - 1 : a;
+  // update stamina
+  p.stamina = p.stamina - 5;
+  // update wood
+  p.wood = (p.wood || 0) + amt;
+  // return amount
+  return amt;
+}
+```
+
+---
+
+## Clear code with useful comments (after)
+
+Improvements: self-explanatory names, constants remove magic numbers, a short JSDoc focuses on intent and edge cases; a single inline note captures a non-obvious policy.
+
+```js
+const GATHER_STAMINA_COST = 5;
+const AXE_YIELD = 3;
+const HAND_YIELD = 1;
+
+/**
+ * Gather wood based on tool and time of day.
+ * Night reduces yield by 1 (minimum 0). Deducts stamina cost on success.
+ * Returns the amount gathered.
+ */
+function gatherWood(player, timeOfDay) {
+  if (player.stamina < GATHER_STAMINA_COST) return 0;
+
+  const baseYield = player.tool === "axe" ? AXE_YIELD : HAND_YIELD;
+
+  // Temporary balance rule: nights are less productive than days.
+  const yieldWithTime =
+    timeOfDay === "night" ? Math.max(0, baseYield - 1) : baseYield;
+
+  player.stamina -= GATHER_STAMINA_COST;
+  player.wood = (player.wood || 0) + yieldWithTime;
+
+  return yieldWithTime;
+}
+```
+
+Why this is better:
+
+- Names and constants make the code readable without line-by-line narration.
+- The JSDoc explains behavior, side effects, and corner cases.
+- A single inline comment captures the business reason for the night penalty.
+
+---
+
+## Reflection
+
+**When should you add comments?**
+
+- When intent is not obvious from code alone (business rules, domain constraints).
+- To record decisions and trade-offs (links to specs or tickets).
+- To warn about pitfalls (performance hotspots, security assumptions, concurrency hazards).
+- To describe side effects or invariants that callers must respect.
+
+**When should you avoid comments and instead improve the code?**
+
+- When a comment restates the code (“subtract 5 from stamina”). Use clear names and constants instead.
+- When a comment compensates for vague names or long functions. Prefer renaming and extracting smaller functions.
+- When comments try to explain magic numbers. Replace them with named constants.
+- When the code can be made self-documenting with better structure.
+
+**What were the issues with the poorly commented code?**
+
+- Comments merely narrated each line, duplicated the code, and hid intent.
+- Magic numbers made behavior unclear; no explanation of why night penalizes yield.
+- Vague names (`gw`, `p`, `t`) forced comments to explain basics.
+
+**How did refactoring improve it?**
+
+- Clear names and constants removed the need for most comments.
+- A focused JSDoc and one inline business-rule comment captured the important “why.”
+- The function became easier to scan, safer to change, and simpler to reuse.
+
+---
