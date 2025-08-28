@@ -442,3 +442,100 @@ mineOre(p);
 - I extracted the shared logic into `canAct` (guard) and `finishAction` (apply effects). Now stamina policy and the update pattern are centralized, so changes happen once. New actions can reuse the helpers, keeping functions short and consistent.
 
 ---
+
+# Refactoring Code for Simplicity (RPG: Heal Action)
+
+## Common refactoring techniques (short list)
+
+- **Inline needless abstractions** (remove generic wrappers you don’t use).
+- **Use guard clauses** instead of deep nesting.
+- **Replace complex conditionals with clear parameters / small helpers.**
+- **Eliminate duplication** and magic numbers.
+- **Prefer simple data flow** (explicit inputs/outputs) over cleverness.
+
+---
+
+## Before — overly engineered for a simple heal
+
+```js
+// rpg/over-engineered-heal.js
+function executeAction(ctx) {
+  // ctx = { player, action: { kind, payload }, config }
+  const { player, action, config } = ctx;
+  const merged = Object.assign({ cost: 0, log: true }, config || {});
+  const pre = merged.pre || function () {};
+  const post = merged.post || function () {};
+
+  pre(ctx);
+
+  let result;
+  if (action && action.kind === "heal") {
+    const amount = Array.isArray(action.payload)
+      ? action.payload.reduce((a, b) => a + b, 0)
+      : Number(action.payload || 0);
+    if (!isFinite(amount)) return { ok: false, reason: "bad-amount" };
+    player.hp = Math.min(player.maxHp, player.hp + amount);
+    if (merged.log) console.log(`healed ${amount}`);
+    result = { ok: true, amount };
+  } else if (action && action.kind === "heal-crit") {
+    const amt = Number(action.payload) * 2;
+    player.hp = Math.min(player.maxHp, player.hp + amt);
+    if (merged.log) console.log(`healed ${amt} (crit)`);
+    result = { ok: true, amount: amt };
+  } else {
+    return { ok: false, reason: "unknown-action" };
+  }
+
+  post(ctx, result);
+  return { ...result, player: { ...player } };
+}
+```
+
+**What made it complex?**
+
+- Generic **action executor** with hooks (`pre/post`) nobody needs here.
+- Multiple payload shapes (number _or_ array) and duplicate “heal/crit” branches.
+- Extra config merging and result copying that add noise to a tiny feature.
+
+---
+
+## After — simple, readable heal
+
+```js
+// rpg/simple-heal.js
+function heal(player, amount, { crit = false, log = true } = {}) {
+  if (!Number.isFinite(amount) || amount <= 0) {
+    if (log) console.log("⛔ invalid heal amount");
+    return { ok: false, reason: "bad-amount" };
+  }
+
+  const final = crit ? amount * 2 : amount;
+  player.hp = Math.min(player.maxHp, player.hp + final);
+
+  if (log) console.log(`❤️ heal +${final} (hp=${player.hp}/${player.maxHp})`);
+  return { ok: true, amount: final };
+}
+
+// tiny demo
+const p = { hp: 12, maxHp: 20 };
+heal(p, 3); // normal heal
+heal(p, 3, { crit: true }); // crit heal
+```
+
+**Why this is simpler**
+
+- One clear function with explicit params (`amount`, `crit`), no generic executor.
+- Guard clause for invalid input, no deep branching.
+- No duplicated “heal” vs “heal-crit” logic; a single code path handles both.
+
+---
+
+## Reflection
+
+**What made the original code complex?**
+It tried to be generic (action executor, hooks, config merging, multiple payload shapes) for a single action. That introduced extra branches, duplication, and mental overhead without real benefit.
+
+**How did refactoring improve it?**
+I removed generic scaffolding, used a single `heal(player, amount, { crit })` API, added a guard clause, and unified the logic. The function now reads top-down, is easy to test, and changes (e.g., new crit multiplier) are localized to one place.
+
+---
