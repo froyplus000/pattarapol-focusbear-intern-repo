@@ -505,14 +505,14 @@ function executeAction(ctx) {
 // rpg/simple-heal.js
 function heal(player, amount, { crit = false, log = true } = {}) {
   if (!Number.isFinite(amount) || amount <= 0) {
-    if (log) console.log("⛔ invalid heal amount");
+    if (log) console.log(" invalid heal amount");
     return { ok: false, reason: "bad-amount" };
   }
 
   const final = crit ? amount * 2 : amount;
   player.hp = Math.min(player.maxHp, player.hp + final);
 
-  if (log) console.log(`❤️ heal +${final} (hp=${player.hp}/${player.maxHp})`);
+  if (log) console.log(` heal +${final} (hp=${player.hp}/${player.maxHp})`);
   return { ok: true, amount: final };
 }
 
@@ -532,10 +532,10 @@ heal(p, 3, { crit: true }); // crit heal
 
 ## Reflection
 
-**What made the original code complex?**
+**What made the original code complex?** <br>
 It tried to be generic (action executor, hooks, config merging, multiple payload shapes) for a single action. That introduced extra branches, duplication, and mental overhead without real benefit.
 
-**How did refactoring improve it?**
+**How did refactoring improve it?** <br>
 I removed generic scaffolding, used a single `heal(player, amount, { crit })` API, added a guard clause, and unified the logic. The function now reads top-down, is easy to test, and changes (e.g., new crit multiplier) are localized to one place.
 
 ---
