@@ -648,3 +648,99 @@ Why this is better:
 - The function became easier to scan, safer to change, and simpler to reuse.
 
 ---
+
+# Handling Errors & Edge Cases
+
+## Strategies (quick list)
+
+- Use **guard clauses** to fail fast on invalid inputs.
+- **Validate inputs and ranges** (types, null/undefined, non-negative, finite numbers).
+- Prefer **clear return shapes** (e.g., `{ ok: false, reason }`) or throw typed errors consistently.
+- **Avoid silent failures**; surface why the action failed.
+- Centralize **constants** and **policies** to avoid magic numbers.
+- Keep core logic **pure** where possible; isolate side effects.
+
+---
+
+## Example: Crafting a potion (before → after)
+
+### Before — no validation, silent negatives
+
+```js
+// craft-before.js
+function craftPotion(player, inventory) {
+  // costs: 2 herb, 1 water, 5 stamina
+  inventory.herb -= 2;
+  inventory.water -= 1;
+  player.stamina -= 5;
+  inventory.potion = (inventory.potion || 0) + 1;
+  console.log("crafted 1 potion");
+  return 1;
+}
+```
+
+Issues:
+
+- No checks for missing player/inventory.
+- Can drive counts negative if resources are insufficient.
+- No explanation when crafting should fail.
+- Magic numbers; no guard clauses.
+
+### After — guard clauses and clear outcomes
+
+```js
+// craft-after.js
+const COST = Object.freeze({ herb: 2, water: 1, stamina: 5 });
+
+function hasResources(inv) {
+  return inv && inv.herb >= COST.herb && inv.water >= COST.water;
+}
+
+function canSpendStamina(p) {
+  return p && p.stamina >= COST.stamina;
+}
+
+function craftPotion(player, inventory) {
+  if (!player || !inventory) return { ok: false, reason: "missing-data" };
+  if (!Number.isFinite(player.stamina) || player.stamina < 0) {
+    return { ok: false, reason: "invalid-stamina" };
+  }
+  if (!Number.isFinite(inventory.herb) || !Number.isFinite(inventory.water)) {
+    return { ok: false, reason: "invalid-inventory" };
+  }
+  if (!hasResources(inventory))
+    return { ok: false, reason: "insufficient-resources" };
+  if (!canSpendStamina(player)) return { ok: false, reason: "tired" };
+
+  inventory.herb -= COST.herb;
+  inventory.water -= COST.water;
+  player.stamina -= COST.stamina;
+  inventory.potion = (inventory.potion || 0) + 1;
+
+  console.log("crafted 1 potion");
+  return { ok: true, crafted: 1 };
+}
+
+// tiny demo
+const player = { stamina: 7 };
+const inv = { herb: 3, water: 1, potion: 0 };
+console.log(craftPotion(player, inv)); // { ok: true, crafted: 1 }
+console.log(craftPotion(player, inv)); // { ok: false, reason: 'insufficient-resources' }
+```
+
+Why the “after” is better:
+
+- Guard clauses stop early on missing/invalid data.
+- Prevents negative resource/stamina counts.
+- Returns a structured result explaining failures.
+- Constants remove magic numbers.
+
+---
+
+## Reflection
+
+**What was the issue with the original code?** <br>
+It assumed valid inputs, subtracted blindly, and never explained failures. That could push inventory and stamina negative, making state inconsistent and bugs hard to trace.
+
+**How does handling errors improve reliability?** <br>
+Early validation and guard clauses prevent invalid state transitions, making outcomes predictable. Clear failure reasons help users and developers diagnose issues quickly. Centralized constants and explicit checks reduce hidden assumptions and make future changes safer.
