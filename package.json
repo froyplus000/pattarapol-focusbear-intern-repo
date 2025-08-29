@@ -1,0 +1,25 @@
+{
+  "name": "pattarapol-focusbear-intern-repo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/froyplus000/pattarapol-focusbear-intern-repo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/froyplus000/pattarapol-focusbear-intern-repo/issues"
+  },
+  "homepage": "https://github.com/froyplus000/pattarapol-focusbear-intern-repo#readme",
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}
