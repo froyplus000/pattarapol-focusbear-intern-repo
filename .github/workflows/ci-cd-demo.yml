@@ -1,0 +1,33 @@
+name: CI (ci-cd-demo)
+
+on:
+  pull_request:
+    paths:
+      - "Milestones/4. Clean Code/ci-cd-demo/**"
+  push:
+    branches: ["main"]
+    paths:
+      - "Milestones/4. Clean Code/ci-cd-demo/**"
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: "Milestones/4. Clean Code/ci-cd-demo"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: "Milestones/4. Clean Code/ci-cd-demo/package-lock.json"
+
+      - name: Install
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
