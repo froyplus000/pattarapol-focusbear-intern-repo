@@ -744,3 +744,80 @@ It assumed valid inputs, subtracted blindly, and never explained failures. That 
 
 **How does handling errors improve reliability?** <br>
 Early validation and guard clauses prevent invalid state transitions, making outcomes predictable. Clear failure reasons help users and developers diagnose issues quickly. Centralized constants and explicit checks reduce hidden assumptions and make future changes safer.
+
+---
+
+# Writing Unit Tests for Clean Code
+
+## Unit Testing Demo with Jest
+
+- Setup small project with Jest installed on unit-test-clean-code branch
+- config script for test -> `jest`
+- write a simple sum function
+- write a simple unit test case using Jest
+- tried run with `npm run test`
+- tried run `npx jest --watch`
+- Every test run correctly
+
+### sum.js
+
+```js
+// sum.js
+function sum(a, b) {
+  if (
+    typeof a !== "number" ||
+    typeof b !== "number" ||
+    !Number.isFinite(a) ||
+    !Number.isFinite(b)
+  ) {
+    throw new TypeError("sum expects finite numbers");
+  }
+  return a + b;
+}
+
+module.exports = { sum };
+```
+
+### sum.test.js
+
+```js
+// sum.test.js
+const { sum } = require("./sum");
+
+describe("sum", () => {
+  test("adds 2 + 3 = 5", () => {
+    expect(sum(2, 3)).toBe(5);
+  });
+
+  test("handles negatives", () => {
+    expect(sum(-2, 7)).toBe(5);
+  });
+
+  test("works with zero", () => {
+    expect(sum(0, 0)).toBe(0);
+  });
+
+  test("rejects non-numbers", () => {
+    expect(() => sum("2", 3)).toThrow(TypeError);
+  });
+
+  test("rejects NaN/Infinity", () => {
+    expect(() => sum(NaN, 1)).toThrow();
+    expect(() => sum(Infinity, 1)).toThrow();
+  });
+});
+```
+
+---
+
+## Reflection
+
+### Why unit tests help keep code clean <br>
+
+Unit tests encourage small, single-purpose functions with clear inputs and outputs. They document expected behavior, catch regressions quickly, and make refactoring safer because behavior is locked in by the tests.
+
+### What issues did I find while testing <br>
+
+While writing the tests, I noticed a few clarity gaps in the function’s expected behavior (e.g., what to do with unusual or borderline inputs) and some naming/assumption inconsistencies that weren’t obvious when just reading the code. The tests helped surface these quickly and made me tighten the function’s “contract” so its behavior is predictable. Overall, I really liked using Jest, its jest --watch mode was especially convenient for development because it reruns only the affected tests on save, giving fast feedback and encouraging small, incremental improvements.
+
+---
