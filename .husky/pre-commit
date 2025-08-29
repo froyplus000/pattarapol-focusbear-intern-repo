@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Run only if staged files include the demo folder
+CHANGED="$(git diff --cached --name-only || true)"
+echo "$CHANGED" | grep -qE '^Milestones/4\. Clean Code/ci-cd-demo/' || exit 0
+
+echo "[pre-commit] Running tests for ci-cd-demo..."
+(
+  cd "Milestones/4. Clean Code/ci-cd-demo"
+  npm test
+)
