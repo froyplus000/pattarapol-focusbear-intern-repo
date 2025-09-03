@@ -1,0 +1,65 @@
+# docker-compose.yml
+x-api-base: &api-base
+  environment:
+    DB_HOST: db
+    DB_PORT: 5432
+    DB_USER: ${DB_USER:-appuser}
+    DB_PASSWORD: ${DB_PASSWORD:-apppass}
+    DB_NAME: ${DB_NAME:-appdb}
+  depends_on:
+    db:
+      condition: service_healthy
+  ports:
+    - '3000:3000'
+  restart: unless-stopped
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: pg
+    environment:
+      POSTGRES_DB: ${DB_NAME:-appdb}
+      POSTGRES_USER: ${DB_USER:-appuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-apppass}
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U $${POSTGRES_USER:-appuser} -d $${POSTGRES_DB:-appdb} -h 127.0.0.1',
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  # DEV service (hot reload)
+  api-dev:
+    <<: *api-base
+    profiles: ['dev']
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev # 👈 dev stage
+    environment:
+      NODE_ENV: development
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  # PROD service (small image)
+  api:
+    <<: *api-base
+    profiles: ['prod']
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner # 👈 prod stage
+    environment:
+      NODE_ENV: production
+    # no volumes in prod
+
+volumes:
+  pgdata:
