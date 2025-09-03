@@ -1,8 +1,22 @@
+# docker-compose.yml
+x-api-base: &api-base
+  environment:
+    DB_HOST: db
+    DB_PORT: 5432
+    DB_USER: ${DB_USER:-appuser}
+    DB_PASSWORD: ${DB_PASSWORD:-apppass}
+    DB_NAME: ${DB_NAME:-appdb}
+  depends_on:
+    db:
+      condition: service_healthy
+  ports:
+    - '3000:3000'
+  restart: unless-stopped
+
 services:
   db:
     image: postgres:16-alpine
     container_name: pg
-    restart: unless-stopped
     environment:
       POSTGRES_DB: ${DB_NAME:-appdb}
       POSTGRES_USER: ${DB_USER:-appuser}
@@ -21,27 +35,31 @@ services:
       timeout: 3s
       retries: 15
 
-  api:
+  # DEV service (hot reload)
+  api-dev:
+    <<: *api-base
+    profiles: ['dev']
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: nest-api
-    depends_on:
-      db:
-        condition: service_healthy
+      target: dev # 👈 dev stage
     environment:
       NODE_ENV: development
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: ${DB_USER:-appuser}
-      DB_PASSWORD: ${DB_PASSWORD:-apppass}
-      DB_NAME: ${DB_NAME:-appdb}
-    ports:
-      - '3000:3000'
     volumes:
       - .:/app
       - /app/node_modules
-    restart: unless-stopped
+
+  # PROD service (small image)
+  api:
+    <<: *api-base
+    profiles: ['prod']
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner # 👈 prod stage
+    environment:
+      NODE_ENV: production
+    # no volumes in prod
 
 volumes:
   pgdata:

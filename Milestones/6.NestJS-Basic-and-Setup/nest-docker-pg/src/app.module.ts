@@ -10,13 +10,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT || '5432', 10),
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
+      host: process.env.DB_HOST ?? 'db', // <— important default
+      port: parseInt(process.env.DB_PORT ?? '5432', 10),
+      username: process.env.DB_USER ?? 'appuser',
+      password: process.env.DB_PASSWORD ?? 'apppass',
+      database: process.env.DB_NAME ?? 'appdb',
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: true, // dev only in real prod
     }),
     UsersModule,
   ],
