@@ -1,4 +1,4 @@
-# NestJS Architecture Reflection (nestjs-architecture.md)
+# NestJS Architecture Reflection
 
 ### What is the purpose of a module in NestJS?
 
