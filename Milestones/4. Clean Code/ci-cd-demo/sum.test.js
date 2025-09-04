@@ -10,4 +10,7 @@ describe("sum", () => {
   test("works with zero", () => {
     expect(sum(0, 0)).toBe(0);
   });
+  test("handles decimal numbers", () => {
+    expect(sum(1.5, 2.5)).toBe(4);
+  });
 });
