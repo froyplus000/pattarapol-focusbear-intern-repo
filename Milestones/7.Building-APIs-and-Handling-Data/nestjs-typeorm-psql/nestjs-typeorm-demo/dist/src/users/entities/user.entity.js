@@ -13,7 +13,9 @@ exports.User = void 0;
 const typeorm_1 = require("typeorm");
 let User = class User {
     id;
-    name;
+    username;
+    firstName;
+    lastName;
 };
 exports.User = User;
 __decorate([
@@ -23,7 +25,15 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ unique: true }),
     __metadata("design:type", String)
-], User.prototype, "name", void 0);
+], User.prototype, "username", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "firstName", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "lastName", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)({ name: 'users' })
 ], User);

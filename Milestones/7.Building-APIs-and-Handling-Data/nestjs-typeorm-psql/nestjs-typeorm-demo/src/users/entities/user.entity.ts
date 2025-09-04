@@ -5,5 +5,9 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
   @Column({ unique: true })
-  name: string;
+  username: string;
+  @Column({ nullable: true })
+  firstName: string;
+  @Column({ nullable: true })
+  lastName: string;
 }
