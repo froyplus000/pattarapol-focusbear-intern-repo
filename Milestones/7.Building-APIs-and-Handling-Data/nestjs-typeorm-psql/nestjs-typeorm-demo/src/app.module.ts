@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { UsersModule } from './users/users.module';
+import { SimpleAuthMiddleware } from './middleware/simple-auth.middleware';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { UsersModule } from './users/users.module';
         database: cfg.get<string>('DB_NAME'),
         entities: [join(process.cwd(), 'dist/**/*.entity.js')],
         autoLoadEntities: true,
-        synchronize: false,
+        synchronize: true,
         logging: true,
         migrations: [join(process.cwd(), 'dist/migrations/*.js')],
         migrationsRun: false,
@@ -31,4 +32,8 @@ import { UsersModule } from './users/users.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(SimpleAuthMiddleware).forRoutes('secret'); // Only apply auth to /secret route
+  }
+}

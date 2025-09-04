@@ -12,6 +12,14 @@ let AppService = class AppService {
     getHello() {
         return 'Hello World!';
     }
+    getSecretData() {
+        console.log('🎯 Service: Processing secret data request...');
+        return {
+            secret: 'This is super secret data!',
+            message: 'Only authenticated users can see this!',
+            timestamp: new Date().toISOString(),
+        };
+    }
 };
 exports.AppService = AppService;
 exports.AppService = AppService = __decorate([

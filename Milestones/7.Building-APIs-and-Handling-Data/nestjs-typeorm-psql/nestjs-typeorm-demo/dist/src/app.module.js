@@ -14,7 +14,11 @@ const config_1 = require("@nestjs/config");
 const typeorm_1 = require("@nestjs/typeorm");
 const path_1 = require("path");
 const users_module_1 = require("./users/users.module");
+const simple_auth_middleware_1 = require("./middleware/simple-auth.middleware");
 let AppModule = class AppModule {
+    configure(consumer) {
+        consumer.apply(simple_auth_middleware_1.SimpleAuthMiddleware).forRoutes('secret');
+    }
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
@@ -32,7 +36,7 @@ exports.AppModule = AppModule = __decorate([
                     database: cfg.get('DB_NAME'),
                     entities: [(0, path_1.join)(process.cwd(), 'dist/**/*.entity.js')],
                     autoLoadEntities: true,
-                    synchronize: false,
+                    synchronize: true,
                     logging: true,
                     migrations: [(0, path_1.join)(process.cwd(), 'dist/migrations/*.js')],
                     migrationsRun: false,
