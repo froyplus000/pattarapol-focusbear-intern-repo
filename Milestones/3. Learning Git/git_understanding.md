@@ -246,8 +246,42 @@ A **Pull Request** proposes merging changes from one branch into another (usuall
 
 ## What I learned from reviewing an open-source PR
 
-- Reviewers ask for specific changes and request tests/docs.
+### Key Observations from React Repository PRs
 
-- CI status (checks, coverage) heavily influences approval.
+I studied several recent React pull requests to understand how open-source PR discussions work in practice. Here are my main takeaways:
 
-- Clear justification in the PR body speeds up review and reduces back-and-forth. (Compare what you observed on the React PR list.)
+**Technical Depth and Context**
+
+- PR descriptions are extremely detailed, explaining not just **what** changed but **why** the change was necessary
+- Authors provide technical background about the problem, including edge cases and reproduction scenarios
+- Example: In [PR #34376](https://github.com/facebook/react/pull/34376), the author explained how `useDeferredValue`'s `initialValue` was being skipped due to transition lane entanglement, and detailed the technical solution approach
+
+**Review Process and Feedback Quality**
+
+- Reviewers provide constructive, specific feedback rather than just approval/rejection
+- Comments focus on architectural decisions, performance implications, and alternative approaches
+- Reviewers often suggest conceptual improvements (e.g., "It's probably worth just making this use the Retry lane like we initially thought since they're conceptually very similar")
+- Code review discussions happen at both high-level design and implementation detail levels
+
+**Automated Quality Gates**
+
+- Extensive CI/CD pipeline with 240+ checks covering tests, size analysis, and compatibility
+- **react-sizebot** automatically reports bundle size changes with detailed breakdowns
+- Multiple build configurations tested (stable, experimental, production, development)
+- Size impact analysis helps reviewers understand performance implications
+
+**Collaboration Patterns**
+
+- Core team members review each other's work, showing that even experienced developers benefit from peer review
+- PRs often reference related issues and link to follow-up work
+- Quick feedback loops - reviews often happen within hours, showing active maintainer engagement
+- Use of conventional commit messages and PR linking for traceability
+
+**Professional Communication**
+
+- Respectful, technical discussions focused on code quality
+- Reviewers acknowledge good work ("Sick find") while providing constructive feedback
+- Clear approval/request changes workflow with specific reasoning
+- Documentation of decisions for future reference
+
+This experience showed me how professional open-source development relies heavily on thorough documentation, automated quality checks, and collaborative review processes to maintain code quality at scale.
