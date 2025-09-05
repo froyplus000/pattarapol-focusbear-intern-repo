@@ -21,7 +21,10 @@
     "migration:generate": "typeorm-ts-node-commonjs migration:generate -d ormconfig.ts",
     "migration:create": "typeorm-ts-node-commonjs migration:create",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d ormconfig.ts",
-    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d ormconfig.ts"
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d ormconfig.ts",
+    "seed": "ts-node scripts/seed.ts seed",
+    "seed:clear": "ts-node scripts/seed.ts clear",
+    "seed:fresh": "ts-node scripts/seed.ts fresh"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -30,6 +33,8 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/typeorm": "^11.0.0",
+    "@types/bcrypt": "^6.0.0",
+    "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "pg": "^8.16.3",

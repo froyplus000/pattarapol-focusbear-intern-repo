@@ -15,6 +15,9 @@ export class User {
   @Column({ nullable: true })
   lastName: string;
 
+  @Column({ nullable: true })
+  age: number;
+
   @Exclude() // 🔒 This will hide the password from all API responses
   @Column({ nullable: true })
   password: string;

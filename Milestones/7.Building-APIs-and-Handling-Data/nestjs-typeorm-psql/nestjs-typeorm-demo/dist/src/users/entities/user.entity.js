@@ -17,6 +17,7 @@ let User = class User {
     username;
     firstName;
     lastName;
+    age;
     password;
 };
 exports.User = User;
@@ -36,6 +37,10 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "lastName", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", Number)
+], User.prototype, "age", void 0);
 __decorate([
     (0, class_transformer_1.Exclude)(),
     (0, typeorm_1.Column)({ nullable: true }),

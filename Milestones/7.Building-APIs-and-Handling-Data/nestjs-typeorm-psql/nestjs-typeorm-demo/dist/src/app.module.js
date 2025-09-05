@@ -15,6 +15,8 @@ const typeorm_1 = require("@nestjs/typeorm");
 const path_1 = require("path");
 const users_module_1 = require("./users/users.module");
 const simple_auth_middleware_1 = require("./middleware/simple-auth.middleware");
+const database_seeder_service_1 = require("./database/database-seeder.service");
+const user_entity_1 = require("./users/entities/user.entity");
 let AppModule = class AppModule {
     configure(consumer) {
         consumer.apply(simple_auth_middleware_1.SimpleAuthMiddleware).forRoutes('secret');
@@ -42,10 +44,11 @@ exports.AppModule = AppModule = __decorate([
                     migrationsRun: false,
                 }),
             }),
+            typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]),
             users_module_1.UsersModule,
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService],
+        providers: [app_service_1.AppService, database_seeder_service_1.DatabaseSeederService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { UsersModule } from './users/users.module';
 import { SimpleAuthMiddleware } from './middleware/simple-auth.middleware';
+import { DatabaseSeederService } from './database/database-seeder.service';
+import { User } from './users/entities/user.entity';
 
 @Module({
   imports: [
@@ -27,10 +29,11 @@ import { SimpleAuthMiddleware } from './middleware/simple-auth.middleware';
         migrationsRun: false,
       }),
     }),
+    TypeOrmModule.forFeature([User]),
     UsersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, DatabaseSeederService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
