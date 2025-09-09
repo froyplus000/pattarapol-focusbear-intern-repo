@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CORS Test</title>
+  </head>
+  <body>
+    <h1>CORS Security Test</h1>
+
+    <button onclick="testAllowedOrigin()">
+      Test Allowed Origin (should work)
+    </button>
+    <button onclick="testBlockedOrigin()">
+      Test Blocked Origin (should fail)
+    </button>
+
+    <div id="result"></div>
+
+    <script>
+      async function testAllowedOrigin() {
+        try {
+          // This should work because we're on localhost:3000
+          const response = await fetch('http://localhost:3000/health');
+          const data = await response.json();
+          document.getElementById('result').innerHTML =
+            '<span style="color: green;">✅ Allowed origin succeeded: ' +
+            JSON.stringify(data) +
+            '</span>';
+        } catch (error) {
+          document.getElementById('result').innerHTML =
+            '<span style="color: red;">❌ Allowed origin failed: ' +
+            error.message +
+            '</span>';
+        }
+      }
+
+      async function testBlockedOrigin() {
+        try {
+          // This should fail due to CORS (we're simulating a different origin)
+          // Note: This test won't work from file:// protocol, needs to be from a different domain
+          const response = await fetch('http://localhost:3000/health', {
+            headers: {
+              Origin: 'https://evil-site.com',
+            },
+          });
+          const data = await response.json();
+          document.getElementById('result').innerHTML =
+            '<span style="color: red;">⚠️ This should have been blocked by CORS!</span>';
+        } catch (error) {
+          document.getElementById('result').innerHTML =
+            '<span style="color: green;">✅ CORS correctly blocked the request: ' +
+            error.message +
+            '</span>';
+        }
+      }
+    </script>
+  </body>
+</html>
