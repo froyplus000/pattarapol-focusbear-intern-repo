@@ -1,4 +1,4 @@
-# Unit Testing with Jest - Documentation and Reflection
+# Unit Testing with Jest - Documentation and Reflection #74
 
 ## 📖 Overview
 
@@ -188,3 +188,263 @@ In the context of Focus Bear's development:
 This exercise successfully demonstrated the fundamentals of unit testing with Jest in a React TypeScript environment. The hands-on experience of setting up Jest, resolving configuration issues, and writing meaningful tests provides a solid foundation for implementing comprehensive testing strategies in real-world applications like Focus Bear.
 
 The importance of automated testing cannot be overstated - it's an essential practice for maintaining code quality, preventing regressions, and enabling confident development in production applications.
+
+---
+
+# React Component Testing with Jest & React Testing Library - Implementation #75
+
+## 📖 Overview
+
+Building upon our previous Jest setup, we extended the project to include React component testing using Jest and React Testing Library. This implementation demonstrates how to test interactive UI components, simulating user interactions and verifying component behavior.
+
+## 🛠️ What We Updated in the Demo React Project
+
+### 1. Enhanced Jest Configuration
+
+**Updated Jest Configuration (`jest.config.js`):**
+
+![](./jest-react-demo//screenshots/ui-component-test/jest-config-code.png)
+
+```javascript
+import { createDefaultPreset } from "ts-jest";
+
+const tsJestTransformCfg = createDefaultPreset().transform;
+
+/** @type {import("jest").Config} **/
+export default {
+  testEnvironment: "jsdom", // Changed from "node" to "jsdom"
+  transform: {
+    ...tsJestTransformCfg,
+  },
+  setupFilesAfterEnv: ["<rootDir>/src/setupTests.ts"], // Added setup file
+  moduleFileExtensions: ["ts", "tsx", "js", "jsx"], // Added tsx, jsx support
+  globals: {
+    "ts-jest": {
+      tsconfig: {
+        jsx: "react-jsx", // Enable JSX support
+      },
+    },
+  },
+};
+```
+
+**Key Changes:**
+
+- Changed `testEnvironment` from `"node"` to `"jsdom"` to enable DOM testing
+- Added `setupFilesAfterEnv` to configure React Testing Library
+- Added support for JSX files with `jsx: "react-jsx"`
+
+### 2. React Testing Library Setup
+
+**Setup File (`src/setupTests.ts`):**
+
+![](./jest-react-demo//screenshots/ui-component-test/setup-test-code.png)
+
+```typescript
+import "@testing-library/jest-dom";
+```
+
+This setup file extends Jest's `expect` with additional DOM-specific matchers like `toBeInTheDocument()` and `toHaveTextContent()`.
+
+### 3. Additional Dependencies
+
+**New Dependencies Added:**
+
+```bash
+npm install --save-dev jest-environment-jsdom
+```
+
+This package provides the JSDOM environment required for testing React components.
+
+### 4. Interactive React Component Implementation
+
+#### MessageButton Component (`src/MessageButton.tsx`)
+
+![MessageButton Component Code](./jest-react-demo/screenshots/ui-component-test/message-component-code.png)
+
+```typescript
+import { useState } from "react";
+
+export function MessageButton() {
+  const [message, setMessage] = useState("Hello World!");
+
+  const changeMessage = () => {
+    setMessage("Button was clicked!");
+  };
+
+  return (
+    <div>
+      <h2 data-testid="message">{message}</h2>
+      <button data-testid="change-button" onClick={changeMessage}>
+        Click Me
+      </button>
+    </div>
+  );
+}
+```
+
+**Component Features:**
+
+- **State Management**: Uses `useState` hook to manage the message state
+- **User Interaction**: Button click handler that changes the message
+- **Test Accessibility**: `data-testid` attributes for reliable test targeting
+
+### 5. Comprehensive Component Tests
+
+#### Component Tests (`src/__test__/MessageButton.test.tsx`)
+
+![MessageButton Test Code](./jest-react-demo/screenshots/ui-component-test/message-test-code.png)
+
+```typescript
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { MessageButton } from "../MessageButton";
+
+describe("MessageButton Component", () => {
+  it("renders with initial message", () => {
+    render(<MessageButton />);
+
+    expect(screen.getByTestId("message")).toHaveTextContent("Hello World!");
+    expect(screen.getByTestId("change-button")).toBeInTheDocument();
+  });
+
+  it("changes message when button is clicked", async () => {
+    const user = userEvent.setup();
+    render(<MessageButton />);
+
+    const message = screen.getByTestId("message");
+    const button = screen.getByTestId("change-button");
+
+    // Initially shows "Hello World!"
+    expect(message).toHaveTextContent("Hello World!");
+
+    // Click the button
+    await user.click(button);
+
+    // Message should change
+    expect(message).toHaveTextContent("Button was clicked!");
+  });
+});
+```
+
+**Test Coverage:**
+
+- **Rendering Test**: Verifies component renders with correct initial state
+- **User Interaction Test**: Simulates button click and verifies state change
+
+### 6. Updated App Integration
+
+**App Component Integration (`src/App.tsx`):**
+
+```typescript
+import { MessageButton } from "./MessageButton";
+
+// ... existing code ...
+
+<div className="card">
+  <h2>React Component Testing Demo</h2>
+  <MessageButton />
+</div>;
+```
+
+## 🧪 Test Output
+
+![React Component Test Output](./jest-react-demo/screenshots/ui-component-test/message-test-output.png)
+
+**Test Results:**
+
+- ✅ 4 tests passed (2 math tests + 2 component tests)
+- ✅ 2 test suites passed
+- ✅ All tests completed successfully
+
+## 🔧 Technical Challenges Encountered
+
+### 1. JSDOM Environment Setup
+
+**Problem:** `Test environment jest-environment-jsdom cannot be found`
+
+**Solution:** Install the required dependency:
+
+```bash
+npm install --save-dev jest-environment-jsdom
+```
+
+### 2. JSX Support in Tests
+
+**Problem:** TypeScript couldn't compile JSX in test files
+
+**Solution:** Configure Jest to handle JSX properly:
+
+```javascript
+globals: {
+  "ts-jest": {
+    tsconfig: {
+      jsx: "react-jsx",
+    },
+  },
+},
+```
+
+## 💭 Reflection on React Component Testing
+
+### What are the benefits of using React Testing Library instead of testing implementation details?
+
+1. **User-Centric Testing**: React Testing Library focuses on testing what users actually see and interact with, rather than internal component implementation details.
+
+2. **Maintainable Tests**: Tests are less likely to break when refactoring component internals, as long as the user experience remains the same.
+
+3. **Accessibility by Default**: The library encourages using accessible queries (like `getByRole`, `getByLabelText`) which promotes better accessibility practices.
+
+4. **Realistic Testing**: Tests interact with components the same way users do - by clicking buttons, typing in inputs, and reading displayed text.
+
+5. **Implementation Agnostic**: Whether you use class components, functional components, hooks, or state management libraries, the tests remain focused on behavior.
+
+### What challenges did you encounter when simulating user interaction?
+
+1. **Asynchronous Nature**: User interactions are asynchronous in React Testing Library, requiring proper use of `async/await` and `userEvent.setup()`.
+
+2. **Event Timing**: Understanding that DOM updates happen asynchronously after user events, requiring careful timing in test assertions.
+
+3. **Setup Requirements**: Configuring the testing environment properly to support DOM manipulation and JSX compilation.
+
+4. **Query Selection**: Learning to choose the right queries (`getByTestId`, `getByRole`, `getByText`) for reliable element selection.
+
+### Focus Bear Application Context
+
+In the context of Focus Bear's development, this React component testing approach would be invaluable for:
+
+1. **Productivity Features**: Testing habit tracker checkboxes, break reminder dialogs, and website blocking toggles to ensure they respond correctly to user interactions.
+
+2. **Settings UI**: Verifying that configuration panels update state correctly when users modify their productivity settings.
+
+3. **Timer Components**: Testing pomodoro timers, break countdowns, and focus session displays to ensure accurate time representation and user controls.
+
+4. **Notification Systems**: Testing popup notifications, alert dialogs, and reminder components to ensure they display appropriate messages and respond to user dismissal.
+
+## 🚀 Key Learning Outcomes
+
+### React Testing Library Core Concepts Applied:
+
+- **`render()`**: Renders React components into a virtual DOM for testing
+- **`screen`**: Provides queries to find elements in the rendered component
+- **`userEvent`**: Simulates realistic user interactions like clicks, typing, and form submissions
+- **`getByTestId()`**: Finds elements by their `data-testid` attribute
+- **`toHaveTextContent()`**: Asserts that an element contains specific text
+- **`toBeInTheDocument()`**: Verifies that an element is present in the DOM
+
+### Best Practices Demonstrated:
+
+1. **Use `data-testid` for Reliable Queries**: Provides stable selectors that won't break due to UI changes
+2. **Test User Behavior, Not Implementation**: Focus on what users see and do
+3. **Async User Interactions**: Properly handle asynchronous user events
+4. **Descriptive Test Names**: Clear test descriptions that explain the expected behavior
+
+## 📝 Conclusion
+
+This React component testing implementation successfully demonstrates how to test interactive UI components using Jest and React Testing Library. The approach emphasizes testing user behavior rather than implementation details, resulting in more maintainable and meaningful tests.
+
+The integration of React Testing Library with our existing Jest setup provides a comprehensive testing foundation that can handle both utility functions and complex UI interactions. This is essential for maintaining the reliability and user experience of applications like Focus Bear, where UI responsiveness and accuracy are critical for user productivity.
+
+The hands-on experience of configuring JSDOM, handling JSX compilation, and simulating user interactions provides practical knowledge that directly applies to testing real-world React applications with complex user workflows.
+
+---
