@@ -1,5 +1,6 @@
 import "./App.css";
 import { MessageButton } from "./MessageButton";
+import { UserProfile } from "./UserProfile";
 
 function App() {
   return (
@@ -7,6 +8,8 @@ function App() {
       <div className="card">
         <h1>React Component Testing Demo</h1>
         <MessageButton />
+        <hr />
+        <UserProfile />
       </div>
     </>
   );

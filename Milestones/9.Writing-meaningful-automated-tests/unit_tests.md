@@ -448,3 +448,486 @@ The integration of React Testing Library with our existing Jest setup provides a
 The hands-on experience of configuring JSDOM, handling JSX compilation, and simulating user interactions provides practical knowledge that directly applies to testing real-world React applications with complex user workflows.
 
 ---
+
+# Mocking API Calls in Jest - Advanced Testing Implementation #76
+
+## 📖 Overview
+
+Building upon our React component testing foundation, this implementation demonstrates how to mock API calls in Jest to test asynchronous code. This is crucial for testing components that interact with external APIs without making real network requests, ensuring tests are fast, reliable, and controllable.
+
+## 🛠️ What We Updated in the Demo React Project
+
+### 1. New UserProfile Component Implementation
+
+We created a new React component that fetches user data from a public API and handles various states (loading, success, error).
+
+**UserProfile Component (`src/UserProfile.tsx`):**
+
+![UserProfile Component Code](jest-react-demo/screenshots/mock-api-calls/user-profile-code.png)
+
+```typescript
+import { useState, useEffect } from "react";
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  website: string;
+}
+
+export function UserProfile() {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(
+        "https://jsonplaceholder.typicode.com/users/1"
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+
+      const userData = await response.json();
+      setUser(userData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div data-testid="loading">Loading user data...</div>;
+  }
+
+  if (error) {
+    return <div data-testid="error">Error: {error}</div>;
+  }
+
+  if (!user) {
+    return <div data-testid="no-data">No user data available</div>;
+  }
+
+  return (
+    <div data-testid="user-profile">
+      <h2>User Profile</h2>
+      <div data-testid="user-name">Name: {user.name}</div>
+      <div data-testid="user-email">Email: {user.email}</div>
+      <div data-testid="user-phone">Phone: {user.phone}</div>
+      <div data-testid="user-website">Website: {user.website}</div>
+      <button data-testid="refresh-button" onClick={fetchUserData}>
+        Refresh Data
+      </button>
+    </div>
+  );
+}
+```
+
+**Key Component Features:**
+
+- **TypeScript Interface**: Defines the expected user data structure from the API
+- **State Management**: Manages `user`, `loading`, and `error` states independently
+- **API Integration**: Uses the JSONPlaceholder API for realistic testing scenarios
+- **Error Handling**: Comprehensive error handling for network failures and HTTP errors
+- **Refresh Functionality**: Allows users to manually refresh data
+- **Test-Friendly Design**: Uses `data-testid` attributes for reliable test targeting
+
+### 2. App Component Integration
+
+**Updated App Component (`src/App.tsx`):**
+
+```typescript
+import "./App.css";
+import { MessageButton } from "./MessageButton";
+import { UserProfile } from "./UserProfile";
+
+function App() {
+  return (
+    <>
+      <div className="card">
+        <h1>React Component Testing Demo</h1>
+        <MessageButton />
+        <hr />
+        <UserProfile />
+      </div>
+    </>
+  );
+}
+```
+
+Added the new `UserProfile` component to demonstrate API mocking alongside existing component testing.
+
+### 3. Comprehensive API Mocking Tests
+
+**UserProfile Tests (`src/__test__/UserProfile.test.tsx`):**
+
+```typescript
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import "@testing-library/jest-dom";
+import { UserProfile } from "../UserProfile";
+
+// Mock the global fetch function
+const mockFetch = jest.fn() as jest.MockedFunction<typeof fetch>;
+global.fetch = mockFetch;
+
+// Mock user data that matches the API response structure
+const mockUserData = {
+  id: 1,
+  name: "John Doe",
+  email: "john.doe@example.com",
+  phone: "123-456-7890",
+  website: "johndoe.com",
+};
+
+describe("UserProfile Component", () => {
+  beforeEach(() => {
+    // Clear all mocks before each test
+    mockFetch.mockClear();
+  });
+
+  it("shows loading state initially", () => {
+    // Setup: Mock fetch to return a pending promise (never resolves)
+    mockFetch.mockImplementation(() => new Promise(() => {}));
+
+    render(<UserProfile />);
+
+    expect(screen.getByTestId("loading")).toBeInTheDocument();
+    expect(screen.getByTestId("loading")).toHaveTextContent(
+      "Loading user data..."
+    );
+  });
+
+  it("displays user data when API call succeeds", async () => {
+    // Setup: Mock successful API response
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockUserData,
+    } as Response);
+
+    render(<UserProfile />);
+
+    // Initially shows loading
+    expect(screen.getByTestId("loading")).toBeInTheDocument();
+
+    // Wait for loading to finish and data to appear
+    await waitFor(() => {
+      expect(screen.getByTestId("user-profile")).toBeInTheDocument();
+    });
+
+    // Verify user data is displayed correctly
+    expect(screen.getByTestId("user-name")).toHaveTextContent("Name: John Doe");
+    expect(screen.getByTestId("user-email")).toHaveTextContent(
+      "Email: john.doe@example.com"
+    );
+    expect(screen.getByTestId("user-phone")).toHaveTextContent(
+      "Phone: 123-456-7890"
+    );
+    expect(screen.getByTestId("user-website")).toHaveTextContent(
+      "Website: johndoe.com"
+    );
+
+    // Verify fetch was called with correct URL
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(mockFetch).toHaveBeenCalledWith(
+      "https://jsonplaceholder.typicode.com/users/1"
+    );
+  });
+
+  it("shows error message when API call fails", async () => {
+    // Setup: Mock failed API response
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+    } as Response);
+
+    render(<UserProfile />);
+
+    // Wait for error to appear
+    await waitFor(() => {
+      expect(screen.getByTestId("error")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("error")).toHaveTextContent(
+      "Error: Failed to fetch user data"
+    );
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows error message when network request fails", async () => {
+    // Setup: Mock network error
+    mockFetch.mockRejectedValueOnce(new Error("Network error"));
+
+    render(<UserProfile />);
+
+    // Wait for error to appear
+    await waitFor(() => {
+      expect(screen.getByTestId("error")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("error")).toHaveTextContent(
+      "Error: Network error"
+    );
+  });
+
+  it("can refresh data when refresh button is clicked", async () => {
+    // Setup: Mock successful API response
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => mockUserData,
+    } as Response);
+
+    render(<UserProfile />);
+
+    // Wait for initial data to load
+    await waitFor(() => {
+      expect(screen.getByTestId("user-profile")).toBeInTheDocument();
+    });
+
+    // Click refresh button
+    const refreshButton = screen.getByTestId("refresh-button");
+    await userEvent.click(refreshButton);
+
+    // Verify fetch was called twice (initial load + refresh)
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(mockFetch).toHaveBeenCalledWith(
+      "https://jsonplaceholder.typicode.com/users/1"
+    );
+  });
+
+  it("handles multiple rapid API calls correctly", async () => {
+    // Setup: Mock successful API response
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => mockUserData,
+    } as Response);
+
+    render(<UserProfile />);
+
+    // Wait for initial data to load
+    await waitFor(() => {
+      expect(screen.getByTestId("user-profile")).toBeInTheDocument();
+    });
+
+    // Click refresh button
+    const refreshButton = screen.getByTestId("refresh-button");
+    await userEvent.click(refreshButton);
+
+    // Should handle the refresh gracefully
+    await waitFor(() => {
+      expect(screen.getByTestId("user-profile")).toBeInTheDocument();
+    });
+
+    // Should have made API calls (initial + refresh)
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+});
+```
+
+## 🧪 Test Output
+
+![API Mocking Test Output](jest-react-demo/screenshots/mock-api-calls/user-profile-test-output.png)
+
+**Test Results:**
+
+- ✅ 10 tests passed (2 math + 2 message button + 6 API mocking tests)
+- ✅ 3 test suites passed
+- ✅ All test scenarios covered successfully
+
+## 🔧 Key API Mocking Concepts Implemented
+
+### 1. Global Fetch Mocking
+
+```typescript
+// Mock the global fetch function
+const mockFetch = jest.fn() as jest.MockedFunction<typeof fetch>;
+global.fetch = mockFetch;
+```
+
+**Purpose**: Replaces the browser's native `fetch` function with a controllable Jest mock function.
+
+### 2. Mock Response Scenarios
+
+**Successful Response:**
+
+```typescript
+mockFetch.mockResolvedValueOnce({
+  ok: true,
+  json: async () => mockUserData,
+} as Response);
+```
+
+**HTTP Error Response:**
+
+```typescript
+mockFetch.mockResolvedValueOnce({
+  ok: false,
+  status: 404,
+} as Response);
+```
+
+**Network Error:**
+
+```typescript
+mockFetch.mockRejectedValueOnce(new Error("Network error"));
+```
+
+**Pending/Loading State:**
+
+```typescript
+mockFetch.mockImplementation(() => new Promise(() => {}));
+```
+
+### 3. Test Cleanup and Isolation
+
+```typescript
+beforeEach(() => {
+  mockFetch.mockClear();
+});
+```
+
+Ensures each test starts with a clean mock state, preventing test interference.
+
+### 4. Asynchronous Testing Patterns
+
+```typescript
+await waitFor(() => {
+  expect(screen.getByTestId("user-profile")).toBeInTheDocument();
+});
+```
+
+Uses `waitFor` to handle asynchronous operations and state updates properly.
+
+## 💭 Reflection on API Mocking
+
+### Why is it important to mock API calls in tests?
+
+1. **Speed and Performance**: Mocked API calls execute instantly, making tests run much faster than real network requests. This is crucial for maintaining fast feedback loops during development.
+
+2. **Reliability and Determinism**: Tests don't depend on external services, network conditions, or API availability. Mocked tests produce consistent results regardless of external factors.
+
+3. **Cost and Rate Limiting**: Avoids hitting API rate limits or incurring costs from paid APIs during testing. This is particularly important in CI/CD pipelines that run tests frequently.
+
+4. **Isolation and Focus**: Tests focus on the component's behavior rather than the API's functionality. We're testing our code's logic, not the external service.
+
+5. **Error Scenario Testing**: Easy to simulate various error conditions (network failures, HTTP errors, timeouts) that would be difficult or impossible to reproduce with real APIs.
+
+6. **Offline Development**: Developers can run tests without internet connectivity, enabling productive development in any environment.
+
+### What are some common pitfalls when testing asynchronous code?
+
+1. **Race Conditions**: Forgetting to use `await` or `waitFor()` can lead to assertions running before asynchronous operations complete, causing flaky tests.
+
+   **Example Pitfall:**
+
+   ```typescript
+   // ❌ Wrong - assertion runs immediately
+   render(<UserProfile />);
+   expect(screen.getByTestId("user-profile")).toBeInTheDocument();
+
+   // ✅ Correct - wait for async operation
+   render(<UserProfile />);
+   await waitFor(() => {
+     expect(screen.getByTestId("user-profile")).toBeInTheDocument();
+   });
+   ```
+
+2. **Mock State Pollution**: Not clearing mocks between tests can cause previous test configurations to affect subsequent tests, leading to unpredictable results.
+
+   **Solution:**
+
+   ```typescript
+   beforeEach(() => {
+     mockFetch.mockClear(); // Reset mock call history
+   });
+   ```
+
+3. **Incomplete Response Mocking**: Forgetting to mock all parts of the Response object (like the `json()` method) can cause runtime errors in tests.
+
+   **Example:**
+
+   ```typescript
+   // ❌ Incomplete mock
+   mockFetch.mockResolvedValueOnce({ ok: true } as Response);
+
+   // ✅ Complete mock
+   mockFetch.mockResolvedValueOnce({
+     ok: true,
+     json: async () => mockUserData,
+   } as Response);
+   ```
+
+4. **Timing Issues**: Not accounting for React's batching of state updates or useEffect timing can lead to assertions that run too early.
+
+5. **Over-Mocking**: Mocking too much internal implementation instead of focusing on the external API boundary can make tests brittle and less meaningful.
+
+### Focus Bear Application Context
+
+In the context of Focus Bear's development, API mocking becomes essential for:
+
+1. **Authentication Testing**: Mock login/logout API calls to test user authentication flows without requiring real credentials or external auth services.
+
+2. **User Settings API**: Test settings synchronization across devices by mocking the settings API to verify that UI updates correctly reflect server responses.
+
+3. **Analytics Integration**: Mock analytics API calls to test event tracking without sending test data to production analytics systems.
+
+4. **Habit Tracking Data**: Test habit completion, streak calculations, and progress updates by mocking the habit tracking API with various data scenarios.
+
+5. **Timer Synchronization**: Mock timer state synchronization APIs to test that focus sessions and breaks maintain consistency across browser sessions.
+
+6. **Error Handling**: Test how the app handles network failures, server errors, and API rate limiting to ensure graceful degradation of functionality.
+
+## 🚀 Advanced Testing Patterns Demonstrated
+
+### 1. Multiple Mock Strategies
+
+- **`mockResolvedValueOnce()`**: For single-use mock responses
+- **`mockResolvedValue()`**: For reusable mock responses across multiple calls
+- **`mockRejectedValueOnce()`**: For simulating promise rejections
+- **`mockImplementation()`**: For custom mock logic and pending promises
+
+### 2. Comprehensive State Testing
+
+- **Loading State**: Testing initial loading indicators
+- **Success State**: Verifying correct data display and UI updates
+- **Error States**: Testing both HTTP errors and network failures
+- **User Interactions**: Testing refresh functionality and multiple API calls
+
+### 3. API Contract Verification
+
+```typescript
+expect(mockFetch).toHaveBeenCalledWith(
+  "https://jsonplaceholder.typicode.com/users/1"
+);
+```
+
+Ensures components call APIs with correct URLs and parameters.
+
+### 4. Call Count Verification
+
+```typescript
+expect(mockFetch).toHaveBeenCalledTimes(2);
+```
+
+Verifies expected number of API calls, crucial for testing refresh functionality and preventing unnecessary network requests.
+
+## 📝 Conclusion
+
+This API mocking implementation successfully demonstrates advanced Jest testing techniques for asynchronous React components. The comprehensive test coverage includes all common scenarios: loading states, successful data fetching, error handling, and user interactions.
+
+The implementation showcases industry best practices for testing components that integrate with external APIs, ensuring that tests are fast, reliable, and maintainable. The mocking strategies demonstrated here directly apply to real-world applications like Focus Bear, where reliable API integration testing is crucial for user experience and application stability.
+
+The hands-on experience with Jest mocking functions, async testing patterns, and comprehensive error scenario coverage provides essential skills for developing robust, well-tested React applications that gracefully handle the complexities of modern web API integrations.
+
+---
