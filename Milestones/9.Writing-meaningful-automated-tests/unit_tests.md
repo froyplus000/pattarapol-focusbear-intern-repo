@@ -931,3 +931,650 @@ The implementation showcases industry best practices for testing components that
 The hands-on experience with Jest mocking functions, async testing patterns, and comprehensive error scenario coverage provides essential skills for developing robust, well-tested React applications that gracefully handle the complexities of modern web API integrations.
 
 ---
+
+# Testing Redux with Jest - State Management Testing Implementation #77
+
+## 📖 Overview
+
+Building upon our React component testing foundation, this implementation demonstrates how to test Redux state management using Jest. We extended the existing demo project to include Redux Toolkit, created a comprehensive counter slice with both synchronous and asynchronous actions, and implemented thorough testing for reducers and Redux-connected components.
+
+## 🛠️ What We Built on the Existing Demo React Project
+
+### 1. Initial Project State
+
+The demo project already had a solid foundation with:
+
+- ✅ Jest configuration set up
+- ✅ Testing environment configured (`setupTests.ts`)
+- ✅ TypeScript support
+- ✅ Basic project structure
+- ✅ Working test examples for utilities and React components
+
+This existing foundation made it ideal for extending with Redux functionality rather than starting from scratch.
+
+### 2. Redux Dependencies Installation
+
+**New Dependencies Added:**
+
+```bash
+npm install @reduxjs/toolkit react-redux
+```
+
+**Key Packages:**
+
+- **`@reduxjs/toolkit`**: Modern Redux with simplified API, built-in best practices
+- **`react-redux`**: Official React bindings for Redux
+
+### 3. Redux Store Implementation
+
+#### Redux Slice (`src/store/counterSlice.ts`)
+
+```typescript
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+
+interface CounterState {
+  value: number;
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: CounterState = {
+  value: 0,
+  loading: false,
+  error: null,
+};
+
+// Async thunk for simulating an API call
+export const incrementAsync = createAsyncThunk(
+  "counter/incrementAsync",
+  async (amount: number) => {
+    // Simulate an API call delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return amount;
+  }
+);
+
+export const counterSlice = createSlice({
+  name: "counter",
+  initialState,
+  reducers: {
+    increment: (state) => {
+      state.value += 1;
+    },
+    decrement: (state) => {
+      state.value -= 1;
+    },
+    incrementByAmount: (state, action: PayloadAction<number>) => {
+      state.value += action.payload;
+    },
+    reset: (state) => {
+      state.value = 0;
+      state.loading = false;
+      state.error = null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(incrementAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(incrementAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        state.value += action.payload;
+      })
+      .addCase(incrementAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Failed to increment";
+      });
+  },
+});
+
+export const { increment, decrement, incrementByAmount, reset } =
+  counterSlice.actions;
+
+export default counterSlice.reducer;
+```
+
+**Key Features:**
+
+- **TypeScript Interface**: Defines clear state structure with `value`, `loading`, and `error`
+- **Synchronous Actions**: `increment`, `decrement`, `incrementByAmount`, `reset`
+- **Asynchronous Action**: `incrementAsync` with 1-second delay simulation
+- **Error Handling**: Comprehensive async state management (pending, fulfilled, rejected)
+- **Immutable Updates**: Redux Toolkit's Immer integration for direct state mutations
+
+#### Store Configuration (`src/store/store.ts`)
+
+```typescript
+import { configureStore } from "@reduxjs/toolkit";
+import counterReducer from "./counterSlice";
+
+export const store = configureStore({
+  reducer: {
+    counter: counterReducer,
+  },
+});
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
+```
+
+**TypeScript Integration:**
+
+- **`RootState`**: Type for the entire application state
+- **`AppDispatch`**: Type for dispatch function with async thunk support
+
+### 4. React Redux Integration
+
+#### Provider Setup (`src/main.tsx`)
+
+```typescript
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { Provider } from "react-redux";
+import { store } from "./store/store";
+import "./index.css";
+import App from "./App.tsx";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </StrictMode>
+);
+```
+
+#### Counter Component (`src/Counter.tsx`)
+
+```typescript
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState, AppDispatch } from "./store/store";
+import {
+  increment,
+  decrement,
+  reset,
+  incrementByAmount,
+  incrementAsync,
+} from "./store/counterSlice";
+
+const Counter = () => {
+  const {
+    value: count,
+    loading,
+    error,
+  } = useSelector((state: RootState) => state.counter);
+  const dispatch = useDispatch<AppDispatch>();
+
+  return (
+    <div style={{ padding: "20px", textAlign: "center" }}>
+      <h2>Redux Counter</h2>
+      <p style={{ fontSize: "24px", margin: "20px 0" }}>
+        Count: <span data-testid="counter-value">{count}</span>
+      </p>
+      {loading && (
+        <p data-testid="loading-indicator" style={{ color: "blue" }}>
+          Loading...
+        </p>
+      )}
+      {error && (
+        <p data-testid="error-message" style={{ color: "red" }}>
+          Error: {error}
+        </p>
+      )}
+      <div
+        style={{
+          display: "flex",
+          gap: "10px",
+          justifyContent: "center",
+          flexWrap: "wrap",
+        }}
+      >
+        <button
+          data-testid="increment-btn"
+          onClick={() => dispatch(increment())}
+          style={{ padding: "10px 20px", fontSize: "16px" }}
+          disabled={loading}
+        >
+          +1
+        </button>
+        <button
+          data-testid="decrement-btn"
+          onClick={() => dispatch(decrement())}
+          style={{ padding: "10px 20px", fontSize: "16px" }}
+          disabled={loading}
+        >
+          -1
+        </button>
+        <button
+          data-testid="increment-by-5-btn"
+          onClick={() => dispatch(incrementByAmount(5))}
+          style={{ padding: "10px 20px", fontSize: "16px" }}
+          disabled={loading}
+        >
+          +5
+        </button>
+        <button
+          data-testid="increment-async-btn"
+          onClick={() => dispatch(incrementAsync(3))}
+          style={{ padding: "10px 20px", fontSize: "16px" }}
+          disabled={loading}
+        >
+          +3 Async
+        </button>
+        <button
+          data-testid="reset-btn"
+          onClick={() => dispatch(reset())}
+          style={{ padding: "10px 20px", fontSize: "16px" }}
+          disabled={loading}
+        >
+          Reset
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default Counter;
+```
+
+**Component Features:**
+
+- **Redux Hooks**: Uses `useSelector` to read state and `useDispatch` to trigger actions
+- **TypeScript Integration**: Proper typing with `RootState` and `AppDispatch`
+- **Loading States**: Displays loading indicator during async operations
+- **Error Handling**: Shows error messages when async operations fail
+- **User Interaction**: Five different buttons demonstrating various Redux actions
+- **Disabled State**: Buttons are disabled during loading to prevent multiple requests
+
+### 5. Comprehensive Redux Testing
+
+#### Redux Slice Tests (`src/__test__/counterSlice.test.ts`)
+
+```typescript
+import counterReducer, {
+  increment,
+  decrement,
+  incrementByAmount,
+  reset,
+  incrementAsync,
+} from "../store/counterSlice";
+import { configureStore } from "@reduxjs/toolkit";
+
+describe("counter slice", () => {
+  const initialState = { value: 0, loading: false, error: null };
+
+  it("should return the initial state", () => {
+    expect(counterReducer(undefined, { type: "unknown" })).toEqual(
+      initialState
+    );
+  });
+
+  it("should handle increment", () => {
+    const actual = counterReducer(initialState, increment());
+    expect(actual.value).toEqual(1);
+    expect(actual.loading).toBe(false);
+    expect(actual.error).toBe(null);
+  });
+
+  it("should handle decrement", () => {
+    const actual = counterReducer(
+      { value: 5, loading: false, error: null },
+      decrement()
+    );
+    expect(actual.value).toEqual(4);
+  });
+
+  it("should handle incrementByAmount", () => {
+    const actual = counterReducer(initialState, incrementByAmount(5));
+    expect(actual.value).toEqual(5);
+  });
+
+  it("should handle reset", () => {
+    const actual = counterReducer(
+      { value: 10, loading: true, error: "Some error" },
+      reset()
+    );
+    expect(actual.value).toEqual(0);
+    expect(actual.loading).toBe(false);
+    expect(actual.error).toBe(null);
+  });
+
+  it("should handle multiple increments", () => {
+    let state = initialState;
+    state = counterReducer(state, increment());
+    state = counterReducer(state, increment());
+    state = counterReducer(state, increment());
+    expect(state.value).toEqual(3);
+    expect(state.loading).toBe(false);
+    expect(state.error).toBe(null);
+  });
+
+  describe("async actions", () => {
+    it("should handle incrementAsync.pending", () => {
+      const action = { type: incrementAsync.pending.type };
+      const state = counterReducer(initialState, action);
+      expect(state.loading).toBe(true);
+      expect(state.error).toBe(null);
+    });
+
+    it("should handle incrementAsync.fulfilled", () => {
+      const action = { type: incrementAsync.fulfilled.type, payload: 5 };
+      const state = counterReducer(
+        { value: 2, loading: true, error: null },
+        action
+      );
+      expect(state.loading).toBe(false);
+      expect(state.value).toBe(7);
+    });
+
+    it("should handle incrementAsync.rejected", () => {
+      const action = {
+        type: incrementAsync.rejected.type,
+        error: { message: "Network error" },
+      };
+      const state = counterReducer(
+        { value: 2, loading: true, error: null },
+        action
+      );
+      expect(state.loading).toBe(false);
+      expect(state.error).toBe("Network error");
+      expect(state.value).toBe(2); // value shouldn't change on error
+    });
+  });
+
+  describe("integration test with store", () => {
+    it("should handle async increment action with real store", async () => {
+      const store = configureStore({
+        reducer: {
+          counter: counterReducer,
+        },
+      });
+
+      // Initial state
+      expect(store.getState().counter.value).toBe(0);
+      expect(store.getState().counter.loading).toBe(false);
+
+      // Dispatch async action
+      const promise = store.dispatch(incrementAsync(3));
+
+      // Should be loading
+      expect(store.getState().counter.loading).toBe(true);
+
+      // Wait for completion
+      await promise;
+
+      // Should be completed
+      expect(store.getState().counter.loading).toBe(false);
+      expect(store.getState().counter.value).toBe(3);
+    });
+  });
+});
+```
+
+**Test Coverage:**
+
+- **Reducer Logic**: Tests all synchronous actions and state transitions
+- **Initial State**: Verifies correct initial state structure
+- **Async Action Lifecycle**: Tests pending, fulfilled, and rejected states
+- **Error Handling**: Verifies error state management
+- **Integration Testing**: Tests with real Redux store for async actions
+
+#### Component Integration Tests (`src/__test__/Counter.test.tsx`)
+
+```typescript
+import { render, screen, fireEvent } from "@testing-library/react";
+import { Provider } from "react-redux";
+import { configureStore } from "@reduxjs/toolkit";
+import Counter from "../Counter";
+import counterReducer from "../store/counterSlice";
+
+// Helper function to create a new store for testing
+const createTestStore = (
+  initialState = { counter: { value: 0, loading: false, error: null } }
+) => {
+  return configureStore({
+    reducer: {
+      counter: counterReducer,
+    },
+    preloadedState: initialState,
+  });
+};
+
+// Helper function to render component with Redux store
+const renderWithRedux = (
+  component: React.ReactElement,
+  initialState?: {
+    counter: { value: number; loading?: boolean; error?: string | null };
+  }
+) => {
+  const store = createTestStore(initialState);
+  return {
+    ...render(<Provider store={store}>{component}</Provider>),
+    store,
+  };
+};
+
+describe("Counter Component", () => {
+  it("renders initial count value", () => {
+    renderWithRedux(<Counter />);
+    const counterValue = screen.getByTestId("counter-value");
+    expect(counterValue.textContent).toBe("0");
+  });
+
+  it("renders with custom initial state", () => {
+    renderWithRedux(<Counter />, { counter: { value: 5 } });
+    const counterValue = screen.getByTestId("counter-value");
+    expect(counterValue.textContent).toBe("5");
+  });
+
+  it("increments count when increment button is clicked", () => {
+    renderWithRedux(<Counter />);
+
+    const incrementBtn = screen.getByTestId("increment-btn");
+    fireEvent.click(incrementBtn);
+
+    const counterValue = screen.getByTestId("counter-value");
+    expect(counterValue.textContent).toBe("1");
+  });
+
+  it("decrements count when decrement button is clicked", () => {
+    renderWithRedux(<Counter />, { counter: { value: 5 } });
+
+    const decrementBtn = screen.getByTestId("decrement-btn");
+    fireEvent.click(decrementBtn);
+
+    const counterValue = screen.getByTestId("counter-value");
+    expect(counterValue.textContent).toBe("4");
+  });
+
+  it("increments by 5 when +5 button is clicked", () => {
+    renderWithRedux(<Counter />);
+
+    const incrementBy5Btn = screen.getByTestId("increment-by-5-btn");
+    fireEvent.click(incrementBy5Btn);
+
+    const counterValue = screen.getByTestId("counter-value");
+    expect(counterValue.textContent).toBe("5");
+  });
+
+  it("resets count when reset button is clicked", () => {
+    renderWithRedux(<Counter />, { counter: { value: 10 } });
+
+    const resetBtn = screen.getByTestId("reset-btn");
+    fireEvent.click(resetBtn);
+
+    const counterValue = screen.getByTestId("counter-value");
+    expect(counterValue.textContent).toBe("0");
+  });
+
+  it("handles multiple button clicks correctly", () => {
+    renderWithRedux(<Counter />);
+
+    const incrementBtn = screen.getByTestId("increment-btn");
+    const incrementBy5Btn = screen.getByTestId("increment-by-5-btn");
+
+    // Click increment 3 times (3) + click +5 once (5) = 8
+    fireEvent.click(incrementBtn);
+    fireEvent.click(incrementBtn);
+    fireEvent.click(incrementBtn);
+    fireEvent.click(incrementBy5Btn);
+
+    const counterValue = screen.getByTestId("counter-value");
+    expect(counterValue.textContent).toBe("8");
+  });
+});
+```
+
+**Testing Patterns:**
+
+- **Custom Test Store**: Creates isolated Redux stores for each test
+- **Redux Provider**: Wraps components with Redux context for testing
+- **State Injection**: Tests with custom initial states
+- **User Interactions**: Simulates button clicks and verifies state changes
+
+## 📸 Screenshots
+
+### 1. **Webpage - Before Interaction**
+
+![Webpage Before](jest-react-demo/screenshots/redux-counter-slice/webpage-before.png)
+
+Shows the initial counter state with value "0" and all available action buttons.
+
+### 2. **Webpage - After Interactions**
+
+![Webpage After](jest-react-demo/screenshots/redux-counter-slice/webpage-after.png)
+
+Demonstrates the counter after several button clicks, showing Redux state management in action.
+
+### 3. **Test Output**
+
+![Counter Slice Test Output](jest-react-demo/screenshots/redux-counter-slice/counter-slice-test-output.png)
+
+![Counter Slice Test Output - Closer](jest-react-demo/screenshots/redux-counter-slice/counter-slice-test-output-closer.png)
+
+Complete test suite results showing all Redux tests passing successfully.
+
+## 🔧 Technical Challenges Encountered
+
+### 1. TypeScript Integration with Redux
+
+**Problem:** Redux Toolkit types needed proper integration with React components.
+
+**Solution:**
+
+- Used `type` imports for `PayloadAction`
+- Created proper `RootState` and `AppDispatch` types
+- Used typed `useDispatch<AppDispatch>()` for async thunk support
+
+### 2. Testing Async Redux Actions
+
+**Challenge:** Testing the complete lifecycle of async thunks (pending → fulfilled → rejected).
+
+**Solution:**
+
+- Tested each action type separately
+- Created integration tests with real store
+- Used Jest's async/await patterns for promise-based actions
+
+### 3. Component Testing with Redux
+
+**Challenge:** Testing Redux-connected components required proper store setup.
+
+**Solution:**
+
+- Created helper functions `createTestStore()` and `renderWithRedux()`
+- Used custom initial states for different test scenarios
+- Ensured proper cleanup between tests
+
+## 💭 Reflection
+
+### What was the most challenging part of testing Redux?
+
+1. **Async Action Complexity**: Testing async thunks required understanding the complete action lifecycle (pending, fulfilled, rejected). Unlike synchronous actions that immediately update state, async actions have multiple phases that need individual testing.
+
+2. **Store Configuration**: Setting up proper test stores with the right initial states and ensuring isolation between tests was more complex than testing pure functions. Each test needed its own store instance to prevent test interference.
+
+3. **TypeScript Integration**: Ensuring proper typing throughout the Redux setup, especially with async thunks and dispatch functions, required careful attention to type definitions and imports.
+
+4. **Component-Redux Integration**: Testing components that depend on Redux state required understanding how to provide the Redux context in tests and how to simulate different state scenarios.
+
+### How do Redux tests differ from React component tests?
+
+1. **Testing Philosophy**:
+
+   - **Redux Tests**: Focus on **pure function testing** - given a state and action, verify the expected new state
+   - **Component Tests**: Focus on **user behavior** - given user interactions, verify the expected UI changes
+
+2. **State Management**:
+
+   - **Redux Tests**: Test state transitions in isolation using reducer functions directly
+   - **Component Tests**: Test how components respond to state changes through the Redux store
+
+3. **Complexity Levels**:
+
+   - **Redux Tests**: Simpler, deterministic testing of business logic
+   - **Component Tests**: More complex integration testing involving DOM, events, and React rendering
+
+4. **Mock Requirements**:
+
+   - **Redux Tests**: Minimal mocking, mostly testing pure functions
+   - **Component Tests**: Extensive mocking of Redux store, user events, and sometimes async operations
+
+5. **Test Setup**:
+   - **Redux Tests**: Direct function calls with test data
+   - **Component Tests**: Require proper Redux Provider setup, store configuration, and DOM rendering
+
+### Focus Bear Application Context
+
+In the context of Focus Bear's development, Redux testing becomes crucial for:
+
+1. **Settings Management**: Testing how user preferences (break intervals, website blocking lists, notification settings) are stored and updated reliably across the application.
+
+2. **Timer State**: Ensuring that focus session timers, break timers, and pomodoro cycles maintain accurate state even when the app is backgrounded or the user navigates between pages.
+
+3. **Habit Tracking**: Testing the complex state logic for habit completion, streak calculations, and progress tracking to ensure users don't lose their progress data.
+
+4. **Sync Functionality**: Testing how local state synchronizes with server state, including conflict resolution when users make changes on multiple devices.
+
+5. **Offline Capability**: Testing how the app handles offline mode, queuing actions for later sync, and maintaining consistent state when connectivity is restored.
+
+6. **Performance Monitoring**: Testing how state changes trigger UI updates efficiently, ensuring the app remains responsive during heavy usage.
+
+## 🚀 Key Learning Outcomes
+
+### Redux Toolkit Concepts Applied:
+
+- **`createSlice()`**: Combines actions and reducers in a single, maintainable structure
+- **`createAsyncThunk()`**: Handles async operations with automatic pending/fulfilled/rejected action generation
+- **`extraReducers`**: Handles actions from async thunks and other slices
+- **Immer Integration**: Allows direct state mutations that are converted to immutable updates
+- **TypeScript Support**: Provides excellent type safety and developer experience
+
+### Testing Best Practices Demonstrated:
+
+1. **Test Isolation**: Each test uses fresh state and doesn't depend on other tests
+2. **Comprehensive Coverage**: Tests both successful and error scenarios
+3. **Integration Testing**: Combines unit tests with integration tests using real stores
+4. **Helper Functions**: Reduces test boilerplate with reusable setup functions
+5. **Async Testing**: Proper handling of promise-based operations in tests
+
+### Redux Testing Patterns:
+
+- **Pure Reducer Testing**: Direct testing of reducer functions with various actions
+- **Action Creator Testing**: Verifying that action creators produce expected action objects
+- **Async Thunk Testing**: Testing the complete lifecycle of async operations
+- **Store Integration Testing**: Testing with actual Redux stores for realistic scenarios
+- **Component Integration**: Testing Redux-connected components with proper store setup
+
+## 📝 Conclusion
+
+This Redux testing implementation successfully demonstrates comprehensive testing strategies for state management in React applications. The combination of Redux Toolkit's modern API with Jest's testing capabilities provides a robust foundation for testing complex application state.
+
+The implementation covers all essential Redux testing scenarios: synchronous actions, asynchronous operations, error handling, and component integration. The testing patterns demonstrated here are directly applicable to production applications like Focus Bear, where reliable state management is crucial for user experience and data integrity.
+
+The hands-on experience with Redux Toolkit, TypeScript integration, and comprehensive testing patterns provides essential skills for building scalable, well-tested React applications with complex state management requirements. The focus on both unit testing (reducers) and integration testing (components with Redux) ensures that the entire state management layer is thoroughly validated.
+
+---
