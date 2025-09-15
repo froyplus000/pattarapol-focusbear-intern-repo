@@ -1,0 +1,41 @@
+{
+  "version": "0.2.0", // VS Code debug config format version
+  "configurations": [
+    // Array of different debug configurations
+    {
+      // Configuration 1: Basic NestJS Debug
+      "name": "Debug NestJS", // Name shown in debug dropdown
+      "type": "node", // Type of debugger (Node.js)
+      "request": "launch", // Start a new process (vs "attach" to existing)
+      "program": "${workspaceFolder}/src/main.ts", // Entry point of your app
+      "runtimeArgs": ["-r", "ts-node/register"], // Tell Node.js to use ts-node for TypeScript
+      "env": {
+        // Environment variables
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal", // Show output in VS Code terminal
+      "restart": true, // Auto-restart when files change
+      "protocol": "inspector", // Modern Node.js debugging protocol
+      "skipFiles": [
+        // Don't step into these files
+        "<node_internals>/**", // Skip Node.js internal files
+        "node_modules/**" // Skip third-party packages
+      ]
+    },
+    {
+      // Configuration 2: NestJS with Watch Mode
+      "name": "Debug NestJS (Watch Mode)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/@nestjs/cli/bin/nest.js", // Use NestJS CLI
+      "args": ["start", "--debug", "--watch"], // CLI arguments for watch mode
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "restart": true,
+      "protocol": "inspector",
+      "skipFiles": ["<node_internals>/**", "node_modules/**"]
+    }
+  ]
+}
