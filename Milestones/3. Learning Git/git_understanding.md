@@ -222,7 +222,7 @@ During my Git learning process, I experienced this scenario when I had made chan
 
 ---
 
-## Reflection on Advanced Git Commands
+## Advanced Git Commands & When to Use Them #58
 
 ### What does each command do?
 
