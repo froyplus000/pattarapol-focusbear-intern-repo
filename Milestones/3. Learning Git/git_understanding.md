@@ -222,7 +222,7 @@ During my Git learning process, I experienced this scenario when I had made chan
 
 ---
 
-## Reflection on Advanced Git Commands
+## Advanced Git Commands & When to Use Them #58
 
 ### What does each command do?
 
@@ -247,7 +247,7 @@ During my Git learning process, I experienced this scenario when I had made chan
 
 ---
 
-# Debugging with `git bisect`
+# Debugging with `git bisect` #59
 
 ## 1) What `git bisect` does
 
@@ -276,6 +276,52 @@ During my Git learning process, I experienced this scenario when I had made chan
 - try marking the current one as Bad : `git bisect bad`
 - try marking previous commit as Good : `git bisect good <commit hash>`
 - reset : `git bisect reset`
+
+---
+
+## Update content for Git Bisect
+
+- I created a simple sum function that add 2 input and return the result, iterate through the program about 3-4 times and commit each time. I ended up having 4 commits of the program, which is intentionally add bug to commit in the middle
+
+```javascript
+function sum(a, b) {
+  result = a + b;
+  return result;
+}
+sum(5, 10);
+```
+
+### Then I use git bisect to find a bug in this program since the latest commit doesn't produce correct result.
+
+#### Program output from the latest commit
+
+![](./screenshots/bisect-4th-commit-run-sum.png)
+
+#### Start using git bisect
+
+1. Log all commit in one line with `git log --online`
+
+![](./screenshots/bisect-git-log.png)
+
+2. Start git bisect, marking which commit is good and bad
+
+- `git bisect start`
+- `git bad <bad-hash>`
+- `git good <good-hash>`
+- I marked 4th commit as bad, and 1st commit as good. So it automatically take me to 3rd commit
+- I run the program on 3rd commit and see output is incorrect. So I mark this commit as bad with `git bisect bad`
+
+![](./screenshots/bisect-start-3rd-commit-run-sum.png)
+
+3. Then it take me to 2nd commit, I ran the program again and see that output is correct. So I marked this commit as good with `git bisect good`
+
+![](./screenshots/bisect-2nd-commit-run-sum.png)
+
+> We can see that it return that the first bad commit is 3rd commit. So I found the bad commit is 3rd commit with use of git bisect. Finally I reset bisect with `git bisect reset`
+
+## When would I use git bisect for real debugging?
+
+> I would use git bisect when I found bug in the current state and I want to find where is the bug was introduce. Git Bisect is very useful to finding when bug was created and who commit. This would help a lot in real project since help me scope down of where bug possibly created.
 
 ---
 
