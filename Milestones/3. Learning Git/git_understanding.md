@@ -1,4 +1,4 @@
-# Understanding Good Commit Messages
+# Understanding Good Commit Messages #60
 
 ## 1) Best Practices
 
@@ -124,6 +124,53 @@ Git separates these steps to give developers **flexibility and control**:
 5. Ran `git commit -m "Update file"` → Changes saved to repository history.
 
 This confirmed the difference between staging (temporary prep area) and committing (permanent history).
+
+---
+
+## Update from feedback
+
+### 1. Show evidence that you researched best practices for commit messages
+
+- I research from this blog post : [Writing a Good Git Commit Message](https://www.gitkraken.com/learn/git/best-practices/git-commit-message)
+
+![Screenshot of GitKraken Blog about Good Git Commit Message](./screenshots/gitkraken-blog.png)
+
+### 2. explore and analyze good vs. bad commit messages in an open-source project (ideally with examples or links)
+
+- [React fix commit](https://github.com/facebook/react/commit/92d7ad5dd976f4b7bc22abc507569b30609b1579)
+- This is good since its easy to idenfy what is this commit is for. I could easily understand this commit is about fixing URL validation for DevTools. It have 'fix:', which is a good convention. It have the product or service in front to show what product is this commit is fixing. It also attached issue number to know which issue had been fix with this commit.
+
+![](./screenshots/fix-commit-react.png)
+
+### 3. make three different styles of commits in your repo as listed
+
+These are screenshots of some example of what I wrote commit message for this onboarding repo when I made progress or complete issues.
+
+> ![](./screenshots/my-git-commit-1.png) <br> ![](./screenshots/my-git-commit-2.png) ![](./screenshots/my-git-commit-3.png)
+
+### 4. reflect on what makes a good commit message, how it helps collaboration, and risks of poor messages, all in your git_understanding.md.
+
+- What makes a good commit message
+
+  - Clear, imperative subject ≤ 50 chars (no trailing period): e.g., `fix: handle null userId`
+  - Blank line, then a body wrapped at ~72 chars that explains _what_ changed and _why_ (not the step‑by‑step how)
+  - Reference related issues/PRs (e.g., `Refs #60`, `Fixes #123`) and call out breaking changes
+  - One logical change per commit so commits are small and reviewable
+  - Use conventional prefixes (`feat:`, `fix:`, `docs:`, `chore:`) when the team agrees
+
+- How good commit messages help collaboration
+
+  - Speed up reviews: reviewers understand intent without reading full diffs
+  - Improve traceability: link code changes to issues, decisions and release notes
+  - Make bisecting and cherry‑picking easier and safer
+  - Help new teammates and future you quickly understand past decisions
+  - Enable reliable automation (changelogs, release tooling, semantic versioning)
+
+- Risks of poor commit messages
+  - Wasted time: reviewers and future maintainers must read diffs to infer intent
+  - Lost context: the "why" disappears and debugging or reverting becomes harder
+  - Release risk: unclear whether change is a bugfix, feature, or breaking change
+  - Poor automation: inaccurate or missing changelogs and release notes
 
 ---
 
