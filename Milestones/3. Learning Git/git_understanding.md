@@ -185,7 +185,7 @@ This confirmed the difference between staging (temporary prep area) and committi
 
 ---
 
-# Branching & Team Collaboration
+# Branching & Team Collaboration #56
 
 ## 1) Why not push directly to `main`?
 
@@ -279,11 +279,13 @@ During my Git learning process, I experienced this scenario when I had made chan
 
 ---
 
-# Creating & Reviewing Pull Requests (PRs)
+# Creating & Reviewing Pull Requests (PRs) #61
 
 ## What is a PR & why use it?
 
 A **Pull Request** proposes merging changes from one branch into another (usually into `main`). It lets teammates review diffs, discuss, run CI, and only then integrate the work—keeping the default branch stable.
+
+> Basically, it help enable team to work individually in different branch. Once each done with they task, create a pull request, review change made. If reviewer approved, that code would merge to main branch. It allow each developer to work on single feature or fix then review before it merge to the main branch. Keep main branch stable.
 
 ---
 
@@ -295,12 +297,16 @@ A **Pull Request** proposes merging changes from one branch into another (usuall
 
 - Stable main: unfinished work stays on branches until reviewed/approved.
 
+> It allow developer to carefully review code before merge to the main branch. Its improve quality, senior developer could let junior developer know if code could be further improve to match standards of the company.
+
 ## What makes a well-structured PR?
 
 - Small, focused scope with clear title & rationale.
 
 - Good description: what/why, test plan, screenshots/logs if relevant.
 - Linked issue (e.g., Fixes #123) and passing CI.
+
+> PR that's have clear goal or focus scope. We aimmed to have very focused scope PR, since later if something wrong or we want to see commits or PR about any feature. It could be easily track. Therefore, clear and meaningful title, relevant screenshots and good descriptions that link to issue is considered as well-structured PR.
 
 ## What I learned from reviewing an open-source PR
 
