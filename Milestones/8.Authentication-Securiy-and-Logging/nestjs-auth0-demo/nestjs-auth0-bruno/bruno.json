@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "nestjs-auth0-bruno",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
