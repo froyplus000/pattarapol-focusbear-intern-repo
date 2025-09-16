@@ -135,7 +135,7 @@ These are screenshots of some example of what I wrote commit message for this on
 
 ---
 
-# Git Concepts: Staging vs. Committing
+# Git Concepts: Staging vs. Committing #55
 
 ## 1. Difference Between Staging and Committing
 
@@ -173,6 +173,15 @@ Git separates these steps to give developers **flexibility and control**:
 5. Ran `git commit -m "Update file"` → Changes saved to repository history.
 
 This confirmed the difference between staging (temporary prep area) and committing (permanent history).
+
+---
+
+## Update from feedback
+
+> During my hands‑on tests I initialized a new Git repository in an empty folder, created a file named `test.txt`, staged it with `git add test.txt` and then committed it with `git commit -m "Create test.txt file"`. This simple flow showed the difference between staging (the file appears in the index after `git add`) and committing (the snapshot is recorded in history after `git commit`); I verified the results with `git status` and `git log --oneline` and captured a screenshot at `./screenshots/git-staging-committing.png` for evidence.
+
+![](./screenshots/git-staging-committing-1.png)
+![](./screenshots/git-staging-committing-2.png)
 
 ---
 
